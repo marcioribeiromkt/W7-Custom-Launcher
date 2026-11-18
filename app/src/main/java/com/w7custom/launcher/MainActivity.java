@@ -8,6 +8,7 @@ import android.content.pm.*;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.location.*;
 import android.os.*;
 import android.provider.Settings;
 import android.util.Base64;
@@ -30,7 +31,11 @@ public class MainActivity extends Activity {
     private final Handler handler=new Handler(Looper.getMainLooper());
     private SharedPreferences prefs;
     private FrameLayout root;
-    private WebView ui,media;
+    private WebView ui,media,map;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Location lastPosition;
+    private boolean mapActive=false, mapLoaded=false;
     private View fullscreen;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
     private ObdReader obd=new ObdReader();
@@ -121,6 +126,10 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void loadMedia(String kind){handler.post(()->loadMedia(kind));}
         @JavascriptInterface public void loadMediaUrl(String url){handler.post(()->loadMediaUrl(url));}
         @JavascriptInterface public void closeMedia(){handler.post(()->closeMedia());}
+        @JavascriptInterface public void showMap(){handler.post(()->showMap());}
+        @JavascriptInterface public void hideMap(){handler.post(()->hideMap());}
+        @JavascriptInterface public void hideMapOverlay(boolean hidden){handler.post(()->{if(map!=null){map.setVisibility(hidden?View.INVISIBLE:(mapActive?View.VISIBLE:View.GONE));if(!hidden&&mapActive)js("window.updateMapRect&&window.updateMapRect()");}});}
+        @JavascriptInterface public void mapRect(double x,double y,double w,double h,double cw,double ch){handler.post(()->setMapPosition(x,y,w,h,cw,ch));}
         @JavascriptInterface public void hideMedia(boolean hidden){handler.post(()->{if(media!=null){media.setVisibility(hidden?View.INVISIBLE:(mediaActive?View.VISIBLE:View.GONE));if(!hidden && mediaActive)js("window.updateMediaRect&&window.updateMediaRect()");}});}
         @JavascriptInterface public void mediaRect(double x,double y,double w,double h,double cw,double ch){
             handler.post(()->setMediaPosition(x,y,w,h,cw,ch));
@@ -338,8 +347,84 @@ public class MainActivity extends Activity {
     @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){
         super.onRequestPermissionsResult(request,permissions,grants);
         if(request==410 && grants.length>0 && grants[0]==PackageManager.PERMISSION_GRANTED)chooseBluetooth();
+        if(request==411 && grants.length>0 && grants[0]==PackageManager.PERMISSION_GRANTED)startLocation();
     }
 
+    private void ensureMap(){
+        if(map!=null)return;
+        map=new WebView(this);
+        map.setBackgroundColor(0xff102439);
+        WebSettings st=map.getSettings();
+        st.setJavaScriptEnabled(true);
+        st.setDomStorageEnabled(true);
+        st.setAllowFileAccess(true);
+        st.setAllowFileAccessFromFileURLs(false);
+        st.setAllowUniversalAccessFromFileURLs(false);
+        map.setWebViewClient(new WebViewClient(){
+            @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){
+                Uri u=r.getUrl();
+                return !"file".equalsIgnoreCase(u.getScheme()) || !"/android_asset/map.html".equals(u.getPath());
+            }
+            @Override public void onPageFinished(WebView v,String url){
+                mapLoaded=true;
+                if(lastPosition!=null)sendPosition(lastPosition);
+                js("window.updateMapRect&&window.updateMapRect()");
+            }
+        });
+        root.addView(map,new FrameLayout.LayoutParams(1,1));
+        map.setVisibility(View.GONE);
+        map.loadUrl("file:///android_asset/map.html");
+    }
+    private void showMap(){
+        ensureMap();mapActive=true;
+        map.setVisibility(View.VISIBLE);
+        js("window.updateMapRect&&window.updateMapRect()");
+        startLocation();
+    }
+    private void hideMap(){
+        mapActive=false;
+        if(map!=null)map.setVisibility(View.GONE);
+    }
+    private void setMapPosition(double x,double y,double w,double h,double cw,double ch){
+        if(!mapActive||map==null||map.getVisibility()!=View.VISIBLE||cw<=0||ch<=0||ui==null)return;
+        double sx=ui.getWidth()/cw,sy=ui.getHeight()/ch;
+        FrameLayout.LayoutParams p=new FrameLayout.LayoutParams(Math.max(1,(int)(w*sx)),Math.max(1,(int)(h*sy)));
+        p.leftMargin=(int)(x*sx);p.topMargin=(int)(y*sy);
+        map.setLayoutParams(p);map.bringToFront();
+    }
+    private void sendPosition(Location position){
+        if(map==null||!mapLoaded)return;
+        final double lat=position.getLatitude(),lon=position.getLongitude(),accuracy=position.getAccuracy();
+        if(!Double.isFinite(lat)||!Double.isFinite(lon))return;
+        map.evaluateJavascript("window.w7Position&&w7Position("+lat+","+lon+","+accuracy+")",null);
+    }
+    private void startLocation(){
+        if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED
+          &&checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},411);
+            return;
+        }
+        try{
+            if(locationManager==null)locationManager=(LocationManager)getSystemService(LOCATION_SERVICE);
+            if(locationManager==null)return;
+            if(locationListener==null)locationListener=new LocationListener(){
+                @Override public void onLocationChanged(Location location){lastPosition=location;sendPosition(location);}
+                @Override public void onStatusChanged(String provider,int status,Bundle extras){}
+                @Override public void onProviderEnabled(String provider){}
+                @Override public void onProviderDisabled(String provider){}
+            };
+            locationManager.removeUpdates(locationListener);
+            for(String provider:new String[]{LocationManager.GPS_PROVIDER,LocationManager.NETWORK_PROVIDER}){
+                try{
+                    if(locationManager.isProviderEnabled(provider)){
+                        Location last=locationManager.getLastKnownLocation(provider);
+                        if(last!=null &&(lastPosition==null||last.getTime()>lastPosition.getTime())){lastPosition=last;sendPosition(last);}
+                        locationManager.requestLocationUpdates(provider,3000,4f,locationListener);
+                    }
+                }catch(Exception ignored){}
+            }
+        }catch(Exception e){toast("Localização indisponível: "+e.getClass().getSimpleName());}
+    }
     private void ensureMedia(){
         if(media!=null)return;
         media=new WebView(this);
@@ -457,6 +542,8 @@ public class MainActivity extends Activity {
     }
     @Override protected void onDestroy(){
         obd.stop();
+        if(locationManager!=null&&locationListener!=null)try{locationManager.removeUpdates(locationListener);}catch(Exception ignored){}
+        if(map!=null){root.removeView(map);map.destroy();map=null;}
         if(media!=null){closeMedia();root.removeView(media);media.destroy();media=null;}
         if(ui!=null){ui.removeJavascriptInterface("W7");ui.destroy();ui=null;}
         super.onDestroy();
