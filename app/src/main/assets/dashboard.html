@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>W7 · CHERY TIGGO</title>
+<style>
+:root{--bg:#080e19;--panel:#121e30;--line:#30455f;--ice:#b8eaff;--cyan:#42c7ff;--royal:#328dff;--ink:#eaf4ff;--muted:#8fa5bd;--ok:#50eccb;--orange:#ffba70;--radius:19px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Roboto,"Arial",sans-serif;user-select:none;-webkit-user-select:none}
+body{background:radial-gradient(ellipse at 75% -40%,rgba(32,118,197,.3),transparent 52%),radial-gradient(ellipse at -10% 95%,rgba(9,82,148,.17),transparent 45%),#090f1a}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit;outline:none;touch-action:manipulation}button:active{transform:scale(.969)}button:focus-visible{outline:2px solid #72ddff}svg.ico{width:22px;height:22px;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;flex:none}
+.shell{height:100%;display:flex;flex-direction:column;padding:7px 13px 9px;gap:9px;max-width:1550px;margin:auto;position:relative}
+.top{height:51px;min-height:51px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:245px}.mark{width:69px;height:43px;border:1px solid #4e7396;background:linear-gradient(155deg,#2a3a50,#0b1421);border-radius:13px;display:grid;place-items:center;box-shadow:inset 0 1px rgba(255,255,255,.1),0 4px 22px rgba(0,0,0,.26);overflow:hidden}.mark img{width:61px;height:39px;object-fit:contain;filter:brightness(0) invert(1);opacity:.91}.mark .fallback{font-size:12px;letter-spacing:1.2px;font-weight:900;display:none}.brand h1{font-size:19px;line-height:19px;margin:0;letter-spacing:2px;font-weight:900}.brand h1 span{color:var(--cyan)}.brand p{font-size:10px;color:#93aec8;letter-spacing:2.5px;margin:5px 0 0;font-weight:700}.topright{display:flex;align-items:center;gap:10px}.date{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-align:right}.time{font-size:23px;letter-spacing:.5px;font-weight:700;color:#fff;margin-left:3px}.chip{display:flex;align-items:center;gap:7px;border:1px solid #325575;border-radius:12px;padding:10px 12px;background:linear-gradient(135deg,#1a3046,#102033);font-size:12px;font-weight:800;letter-spacing:.3px;min-height:42px}.chip.active{color:#a9edff;border-color:#3683ad}.statusdot{width:7px;height:7px;background:var(--ok);border-radius:50%;box-shadow:0 0 11px #36cbb9}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}.stack{display:flex;min-height:0;flex-direction:column;gap:10px}.card{border:1px solid rgba(110,165,210,.25);border-radius:var(--radius);background:linear-gradient(141deg,rgba(29,48,71,.97),rgba(13,25,42,.98) 65%);box-shadow:0 14px 27px rgba(0,0,0,.21),inset 0 1px rgba(255,255,255,.045);overflow:hidden;position:relative;min-height:0}.card:before{content:"";height:1px;position:absolute;top:0;left:17px;right:17px;background:linear-gradient(90deg,transparent,rgba(108,195,255,.43),transparent);pointer-events:none}.nav{flex:1.13;display:flex;flex-direction:column}.obd{flex:.87;display:flex;flex-direction:column}.media{flex:1.47;display:flex;flex-direction:column}.utility{flex:.53;display:flex;flex-direction:column}
+.cardhead{display:flex;align-items:center;justify-content:space-between;height:38px;min-height:38px;padding:0 14px;gap:5px}.eyebrow{font-size:10px;letter-spacing:1.8px;color:#7fc8ed;font-weight:900;display:flex;align-items:center;gap:8px}.eyebrow .ico{width:16px;height:16px}.indicator{font-size:9px;color:#a1bad1;letter-spacing:1px;border:1px solid rgba(100,156,206,.3);padding:5px 8px;border-radius:7px;background:#15273b;font-weight:700}
+.navbody{flex:1;min-height:0;position:relative;display:flex;align-items:flex-end;padding:12px 14px 12px;isolation:isolate;background:radial-gradient(ellipse at 55% 38%,rgba(52,122,185,.28),transparent 67%),linear-gradient(145deg,#13253b,#0e1c30)}
+.road{position:absolute;inset:0;z-index:-1;opacity:.49;overflow:hidden}.road:before{content:"";position:absolute;inset:-80px;background:repeating-linear-gradient(0deg,transparent 0 42px,rgba(64,105,142,.17) 42px 43px,transparent 43px 89px),repeating-linear-gradient(90deg,transparent 0 55px,rgba(64,105,142,.18) 55px 56px,transparent 56px 92px);transform:rotate(-20deg) scale(1.3)}.street{position:absolute;inset:-70px;width:130%;height:170%;transform:rotate(-7deg)}.street path{fill:none;stroke:#32608a;stroke-width:10;opacity:.9}.street path.main{stroke:#5aa8dc;stroke-width:3;stroke-dasharray:18 10}.navcaption{position:absolute;top:12px;left:15px;display:flex;flex-direction:column;gap:5px}.navtitle{font-size:23px;line-height:1.06;letter-spacing:-.3px;font-weight:900;text-shadow:0 2px 12px #071728}.navsub{font-size:11px;color:#a3c7e5;font-weight:500}.navactions{display:flex;gap:9px;width:100%;align-items:center}.primary{background:linear-gradient(135deg,#1f9cdb,#2376d1);border:1px solid rgba(164,235,255,.42);box-shadow:0 8px 23px rgba(0,100,191,.33),inset 0 1px rgba(255,255,255,.27);border-radius:12px;font-weight:900;letter-spacing:.7px}.big-action{height:54px;display:flex;align-items:center;justify-content:center;gap:10px;flex:1;font-size:15px;white-space:nowrap}.secondary{background:linear-gradient(145deg,#20354e,#17263b);border:1px solid #456482;border-radius:12px;font-weight:900;letter-spacing:.5px}.alt-action{height:54px;padding:0 15px;display:flex;align-items:center;gap:8px;font-size:12px}.pin{position:absolute;right:15%;top:28%;width:40px;height:40px;border:1px solid rgba(149,219,255,.6);border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:linear-gradient(140deg,#27adf4,#1768b6);box-shadow:0 0 0 11px rgba(33,145,221,.11),0 0 35px rgba(77,196,255,.45)}.pin svg{transform:rotate(45deg);width:21px;position:absolute;left:9px;top:10px}
+.telegrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);padding:0 12px;gap:7px;align-items:stretch}.meter{border:1px solid rgba(108,161,206,.19);border-radius:12px;background:linear-gradient(180deg,#102338,#142338);display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}.meter strong{font-size:clamp(19px,2.6vw,30px);line-height:1;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}.meter strong.accent{color:#82dfff}.meter small{font-size:10px;color:#b0c7d9;margin-top:8px;letter-spacing:.5px;font-weight:800;white-space:nowrap}.obdfoot{height:39px;min-height:39px;padding:5px 11px;display:flex;justify-content:space-between;align-items:center;gap:8px}.obdmessage{color:#9cb5cb;font-size:10px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.smallbtn{height:29px;border:1px solid #3d6a89;border-radius:8px;padding:0 12px;background:#17344d;color:#bceeff;font-weight:800;font-size:11px;white-space:nowrap}
+.mediatop{display:flex;align-items:center;justify-content:space-between;padding:0 13px;height:38px;min-height:38px}.media-actions{display:flex;gap:6px}.iconbtn{width:31px;height:27px;display:grid;place-items:center;border-radius:8px;border:1px solid #345c7b;background:#1c3348}.iconbtn .ico{width:16px;height:16px}.media-screen{flex:1;min-height:0;margin:0 11px;position:relative;overflow:hidden;border-radius:12px;border:1px solid rgba(102,162,204,.23);background:radial-gradient(ellipse at 48% 50%,#1f3c5d 0,#0a1422 70%)}.media-screen:before{content:"";position:absolute;inset:0;background:linear-gradient(122deg,transparent,rgba(79,161,231,.07),transparent),repeating-linear-gradient(0deg,transparent 0 20px,rgba(113,179,214,.035) 20px 21px);pointer-events:none}.media-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}.playorb{width:69px;height:69px;display:grid;place-items:center;border-radius:50%;color:#bceaff;border:1px solid #447cab;background:radial-gradient(circle at 35% 30%,#24618b,#11273c);box-shadow:0 0 37px rgba(46,150,229,.29),inset 0 1px rgba(255,255,255,.2)}.playorb svg{width:31px;height:31px}.mediatitle{font-size:14px;font-weight:900;letter-spacing:.5px}.mediasub{color:#8caac5;font-size:10px}.mediabar{height:49px;min-height:49px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:7px 11px}.source{border-radius:9px;border:1px solid #365671;background:#172940;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;white-space:nowrap}.source.selected{background:linear-gradient(135deg,#1d608a,#17486f);border-color:#54b9ed;color:#d7f6ff}.source .ico{width:16px;height:16px}
+.utilgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1;padding:0 11px 10px;min-height:0}.quick{background:linear-gradient(160deg,#1c3651,#17283e);border:1px solid rgba(116,173,217,.3);border-radius:11px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:12px;white-space:nowrap;min-width:0}.quick .ico{width:21px;height:21px;color:#87d7ff}
+.footer{height:50px;min-height:50px;display:flex;justify-content:space-between;align-items:center;gap:10px}.ftleft,.ftright{display:flex;gap:8px;align-items:center}.ftleft{flex:1}.footerbtn{height:45px;border-radius:12px;padding:0 21px;background:linear-gradient(140deg,#172a42,#101d2d);border:1px solid #375470;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:900;letter-spacing:.5px;min-width:0}.footerbtn.feature{background:linear-gradient(135deg,#277ba9,#17689f);border-color:#50b8e8;box-shadow:0 6px 23px rgba(27,113,198,.23)}.footerbtn .ico{width:19px;height:19px}.footerlabel{font-size:10px;color:#7897b1;letter-spacing:1px;font-weight:800}
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(3,9,16,.89);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:12px;display:none;flex-direction:column}.overlay.visible{display:flex;animation:fadeIn .18s ease-out}.overlayhead{display:flex;align-items:center;justify-content:space-between;min-height:55px}.overlaytitle{font-size:19px;font-weight:900;letter-spacing:.5px}.close{background:#1b334a;border:1px solid #3b6482;border-radius:11px;min-width:105px;height:43px;font-size:12px;font-weight:900}.appgrid{overflow-y:auto;overflow-x:hidden;flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-content:start;gap:10px;padding:8px 3px 15px}.apptile{background:linear-gradient(150deg,#1b354f,#112138);border:1px solid #304f6d;border-radius:15px;min-height:114px;padding:10px 5px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px}.apptile img{height:49px;width:49px;object-fit:contain}.apptile .appfallback{height:49px;width:49px;border-radius:12px;background:#2978a2;display:grid;place-items:center;font-size:22px;font-weight:bold}.apptile span{font-size:11px;font-weight:800;text-align:center;line-height:1.15;overflow-wrap:anywhere;max-height:28px;overflow:hidden}.settingscontent{flex:1;overflow:auto;max-width:980px;margin:0 auto;width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-content:start;padding:10px 3px}.settingcard{border-radius:16px;background:#132940;border:1px solid #305674;padding:15px;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:73px}.settingcard strong{font-size:13px}.settingcard p{font-size:11px;color:#aac4dc;margin:6px 0 0}.settingcard button{border-radius:9px;border:1px solid #5d9cc5;background:#205a7d;font-weight:800;padding:12px 14px;white-space:nowrap}
+@keyframes fadeIn{from{opacity:.1;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@keyframes glow{0%,100%{filter:drop-shadow(0 0 0 rgba(53,180,250,0))}50%{filter:drop-shadow(0 0 11px rgba(53,180,250,.38))}}
+.card{animation:fadeIn .32s ease-out both}.stack:nth-child(2) .card{animation-delay:.08s}
+.hybrid main{grid-template-columns:.92fr 1.1fr}.hybrid .nav{flex:.94}.hybrid .obd{flex:1.06}.hybrid .media{flex:1.62}.hybrid .utility{flex:.38}.hybrid .card{border-color:rgba(84,187,224,.32)}.hybrid .primary{background:linear-gradient(135deg,#268fac,#3372bf)}
+@media(max-width:850px){.brand{min-width:0}.brand h1{font-size:17px}.date{display:none}.chip{padding:7px 9px}.navtitle{font-size:20px}.alt-action{padding:0 8px}.quick{gap:5px;font-size:10px}.footerbtn{padding:0 13px}.topright{gap:6px}.appgrid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-height:510px){.shell{gap:6px;padding-top:4px}.top{height:42px;min-height:42px}.brand .mark{height:37px}.cardhead,.mediatop{height:32px;min-height:32px}.footer{height:43px;min-height:43px}.footerbtn{height:40px}.navbody{padding:7px}.obdfoot{height:32px;min-height:32px}.meter strong{font-size:22px}.mediabar{height:42px;min-height:42px}.utilgrid{padding-bottom:6px}.stack,main{gap:7px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/></symbol>
+ <symbol id="i-nav" viewBox="0 0 24 24"><path d="m3 11 18-8-8 18-2-8z"/></symbol>
+ <symbol id="i-radio" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="m5 8 12-5M7 15h3m5-1h4m-4 4h4"/><circle cx="9" cy="15" r="2"/></symbol>
+ <symbol id="i-bt" viewBox="0 0 24 24"><path d="m7 7 10 10-5 4V3l5 4L7 17"/></symbol>
+ <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></symbol>
+ <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+ <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.2 2.2m8.4 8.4 2.2 2.2m0-12.8-2.2 2.2m-8.4 8.4-2.2 2.2"/><circle cx="12" cy="12" r="4.5"/></symbol>
+ <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+ <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 12 7-12 7z" fill="currentColor" stroke="none"/></symbol>
+ <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2m3 6a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></symbol>
+ <symbol id="i-external" viewBox="0 0 24 24"><path d="M13 4h7v7M20 4 10 14M20 14v6H4V4h6"/></symbol>
+ <symbol id="i-car" viewBox="0 0 24 24"><path d="m5 16-2 0V9l3-5h12l3 5v7h-2M5 16h14M3 10h18M7 16v3m10-3v3"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></symbol>
+ <symbol id="i-chev" viewBox="0 0 24 24"><path d="m8 5 7 7-7 7"/></symbol>
+ <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2 6M20 5v6h-6"/></symbol>
+</svg>
+<div class="shell" id="shell">
+ <header class="top">
+  <div class="brand">
+   <div class="mark"><img id="cheryLogo" src="https://upload.wikimedia.org/wikipedia/commons/5/51/Chery_symbol.svg" onerror="this.style.display='none';document.getElementById('fallbackLogo').style.display='block'" alt="Símbolo Chery"><span class="fallback" id="fallbackLogo">CHERY</span></div>
+   <div><h1>W7 <span>COCKPIT</span></h1><p>CHERY TIGGO · CUSTOM OS</p></div>
+  </div>
+  <div class="topright">
+   <div class="date" id="today">TERÇA-FEIRA</div><div class="time" id="clock">--:--</div>
+   <button class="chip active" onclick="toggleSkin()" id="skinButton"><span class="statusdot"></span> COCKPIT</button>
+   <button class="chip" onclick="openSettings()" title="Configurações"><svg class="ico"><use href="#i-settings"/></svg></button>
+  </div>
+ </header>
+ <main>
+  <section class="stack">
+   <article class="card nav">
+    <div class="cardhead"><span class="eyebrow"><svg class="ico"><use href="#i-nav"/></svg>NAVEGAÇÃO</span><span class="indicator">GOOGLE MAPS · PADRÃO</span></div>
+    <div class="navbody">
+     <div class="road"><svg class="street" viewBox="0 0 490 230" preserveAspectRatio="none"><path d="M-15 120 Q85 75 160 123 T380 115 T520 75" /><path d="M65 -25 Q145 75 90 130 T205 290" /><path d="M235 -20 Q260 80 210 140 T300 260" /><path class="main" d="M-15 120 Q85 75 160 123 T380 115 T520 75" /></svg></div>
+     <div class="navcaption"><div class="navtitle">Seu caminho,<br>sempre à frente.</div><div class="navsub">Navegação pelo aplicativo instalado</div></div>
+     <div class="pin"><svg class="ico"><use href="#i-nav"/></svg></div>
+     <div class="navactions"><button class="primary big-action" onclick="W7.openApp(1)"><svg class="ico"><use href="#i-map"/></svg> GOOGLE MAPS</button><button class="secondary alt-action" onclick="W7.openApp(0)"><svg class="ico"><use href="#i-nav"/></svg> WAZE</button></div>
+    </div>
+   </article>
+   <article class="card obd">
+    <div class="cardhead"><span class="eyebrow"><svg class="ico"><use href="#i-car"/></svg>TELEMETRIA · OBD2</span><span class="indicator" id="obdBadge">AGUARDANDO</span></div>
+    <div class="telegrid">
+     <div class="meter"><strong class="accent" id="rpm">—</strong><small>RPM</small></div>
+     <div class="meter"><strong id="speed">—</strong><small>KM/H</small></div>
+     <div class="meter"><strong id="temp">—</strong><small>MOTOR °C</small></div>
+     <div class="meter"><strong id="volt">—</strong><small>TENSÃO</small></div>
+    </div>
+    <div class="obdfoot"><span class="obdmessage" id="obdMessage">Selecione e conecte seu ELM327</span><button class="smallbtn" onclick="W7.chooseObd()">ADAPTADOR</button><button class="smallbtn" onclick="W7.connectObd()">CONECTAR</button></div>
+   </article>
+  </section>
+  <section class="stack">
+   <article class="card media">
+    <div class="mediatop"><span class="eyebrow"><svg class="ico"><use href="#i-music"/></svg>CENTRAL DE MÍDIA</span><div class="media-actions"><button title="Inserir link" class="iconbtn" onclick="mediaLink()"><svg class="ico"><use href="#i-link"/></svg></button><button title="Abrir aplicativo" class="iconbtn" onclick="openExternalMedia()"><svg class="ico"><use href="#i-external"/></svg></button><button title="Reiniciar painel" class="iconbtn" onclick="resetMedia()"><svg class="ico"><use href="#i-refresh"/></svg></button></div></div>
+    <div class="media-screen" id="mediaScreen">
+     <div class="media-placeholder" id="mediaPlaceholder">
+      <div class="playorb"><svg class="ico"><use href="#i-play"/></svg></div>
+      <div class="mediatitle">Sua música. Seu painel.</div>
+      <div class="mediasub">Selecione uma fonte abaixo para começar</div>
+     </div>
+    </div>
+    <div class="mediabar">
+     <button class="source selected" onclick="selectMedia('youtube',4,this)"><svg class="ico"><use href="#i-play"/></svg> YouTube</button>
+     <button class="source" onclick="selectMedia('spotify',2,this)"><svg class="ico"><use href="#i-music"/></svg> Spotify</button>
+     <button class="source" onclick="selectMedia('music',3,this)"><svg class="ico"><use href="#i-music"/></svg> YT Music</button>
+    </div>
+   </article>
+   <article class="card utility">
+    <div class="cardhead"><span class="eyebrow">ACESSO RÁPIDO</span><span class="indicator">SISTEMA ORIGINAL</span></div>
+    <div class="utilgrid">
+     <button class="quick" onclick="W7.openApp(5)"><svg class="ico"><use href="#i-phone"/></svg> PROJEÇÃO</button>
+     <button class="quick" onclick="W7.openApp(6)"><svg class="ico"><use href="#i-radio"/></svg> RÁDIO FM</button>
+     <button class="quick" onclick="W7.openApp(7)"><svg class="ico"><use href="#i-bt"/></svg> BLUETOOTH</button>
+    </div>
+   </article>
+  </section>
+ </main>
+ <footer class="footer">
+  <div class="ftleft"><button class="footerbtn feature" onclick="openApps()"><svg class="ico"><use href="#i-grid"/></svg> TODOS OS APLICATIVOS</button><button class="footerbtn" onclick="W7.openApp(1)"><svg class="ico"><use href="#i-nav"/></svg> MAPAS</button><button class="footerbtn" onclick="W7.androidSettings()"><svg class="ico"><use href="#i-settings"/></svg> SISTEMA</button></div>
+  <div class="ftright"><span class="footerlabel">W7 CUSTOM · 1.0</span></div>
+ </footer>
+</div>
+<div class="overlay" id="appsOverlay">
+ <div class="overlayhead"><span class="overlaytitle">Aplicativos instalados</span><button class="close" onclick="closeOverlay()">✕ FECHAR</button></div>
+ <div class="appgrid" id="appGrid"></div>
+</div>
+<div class="overlay" id="settingsOverlay">
+ <div class="overlayhead"><span class="overlaytitle">Configurar W7 Cockpit</span><button class="close" onclick="closeOverlay()">✕ FECHAR</button></div>
+ <div class="settingscontent">
+  <div class="settingcard"><div><strong>Modo visual</strong><p>Alternar entre Cockpit e Hybrid</p></div><button onclick="toggleSkin()">ALTERNAR</button></div>
+  <div class="settingcard"><div><strong>Adaptador OBD2</strong><p>Escolher ELM327 Bluetooth emparelhado</p></div><button onclick="W7.chooseObd()">SELECIONAR</button></div>
+  <div class="settingcard"><div><strong>Projeção</strong><p>CarPlay / Android Auto da central</p></div><button onclick="W7.configure(5)">VINCULAR</button></div>
+  <div class="settingcard"><div><strong>Rádio FM</strong><p>Vincular aplicativo original Winca</p></div><button onclick="W7.configure(6)">VINCULAR</button></div>
+  <div class="settingcard"><div><strong>Bluetooth original</strong><p>Vincular chamadas e telefone</p></div><button onclick="W7.configure(7)">VINCULAR</button></div>
+  <div class="settingcard"><div><strong>Aplicativo OBD alternativo</strong><p>Torque ou Car Scanner, se instalado</p></div><button onclick="W7.configure(8)">VINCULAR</button></div>
+  <div class="settingcard"><div><strong>Configurações Android</strong><p>Rede, localização e permissões</p></div><button onclick="W7.androidSettings()">ABRIR</button></div>
+  <div class="settingcard"><div><strong>Launcher original</strong><p>Voltar ao início do sistema, se disponível</p></div><button onclick="W7.originalHome()">ABRIR</button></div>
+ </div>
+</div>
+<script>
+(function(){
+ var mediaIndex=4,mediaMode='youtube',mediaOpened=false;
+ function el(id){return document.getElementById(id)}
+ function invoke(method,args){try{if(window.W7&&typeof W7[method]==='function')return W7[method].apply(W7,args||[])}catch(e){}}
+ window.w7Native=invoke;
+ window.closeOverlay=function(){el('appsOverlay').classList.remove('visible');el('settingsOverlay').classList.remove('visible')}
+ window.openSettings=function(){closeOverlay();el('settingsOverlay').classList.add('visible');}
+ window.openApps=function(){
+  closeOverlay();var g=el('appGrid');g.innerHTML='';
+  var data=[];try{data=JSON.parse(W7.appsJson())}catch(e){}
+  data.forEach(function(app){
+   var b=document.createElement('button');b.className='apptile';
+   var icon=app.icon?document.createElement('img'):document.createElement('div');
+   if(app.icon)icon.src='data:image/png;base64,'+app.icon;
+   else{icon.className='appfallback';icon.textContent=(app.label||'?').charAt(0).toUpperCase()}
+   var title=document.createElement('span');title.textContent=app.label;
+   b.appendChild(icon);b.appendChild(title);
+   b.onclick=function(){closeOverlay();W7.launchInstalled(app.pkg,app.cls)};
+   g.appendChild(b);
+  });
+  el('appsOverlay').classList.add('visible');
+ }
+ window.toggleSkin=function(){
+  var hybrid=!document.body.classList.contains('hybrid');
+  document.body.classList.toggle('hybrid',hybrid);
+  el('skinButton').innerHTML='<span class="statusdot"></span> '+(hybrid?'HYBRID':'COCKPIT');
+  W7.saveSkin(hybrid?'hybrid':'cockpit');
+  setTimeout(updateMediaRect,150);
+ }
+ window.selectMedia=function(kind,index,button){
+  mediaMode=kind;mediaIndex=index;mediaOpened=true;
+  var all=document.querySelectorAll('.source');for(var i=0;i<all.length;i++)all[i].classList.remove('selected');
+  button.classList.add('selected');el('mediaPlaceholder').style.display='none';
+  updateMediaRect();W7.loadMedia(kind);
+ }
+ window.mediaLink=function(){
+  var link=prompt('Cole um link de vídeo do YouTube ou música do Spotify:','https://');
+  if(link && /^https:\/\//i.test(link)){mediaOpened=true;el('mediaPlaceholder').style.display='none';updateMediaRect();W7.loadMediaUrl(link)}
+ }
+ window.resetMedia=function(){mediaOpened=false;el('mediaPlaceholder').style.display='flex';W7.closeMedia();}
+ window.openExternalMedia=function(){W7.openApp(mediaIndex);}
+ function updateMediaRect(){
+  if(!mediaOpened)return;
+  var r=el('mediaScreen').getBoundingClientRect();
+  W7.mediaRect(r.left+1,r.top+1,r.width-2,r.height-2,window.innerWidth,window.innerHeight);
+ }
+ window.W7Bridge={
+  onStatus:function(s){el('obdMessage').textContent=s.message||'';el('obdBadge').textContent=s.connected?'ELM327 ONLINE':'DESCONECTADO';el('obdBadge').style.color=s.connected?'#5eebc6':'#b0c5d5';},
+  onData:function(d){el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent='LEITURA ATIVA';},
+  onResume:function(){updateMediaRect();}
+ };
+ function clock(){var now=new Date();el('clock').textContent=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);el('today').textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();}
+ clock();setInterval(clock,15000);
+ try{if(W7.getSkin()==='hybrid'){document.body.classList.add('hybrid');el('skinButton').innerHTML='<span class="statusdot"></span> HYBRID';}}catch(e){}
+ window.addEventListener('resize',function(){setTimeout(updateMediaRect,75)});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Backspace')closeOverlay()});
+})();
+</script>
+</body></html>
