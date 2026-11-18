@@ -68,7 +68,21 @@ public class MainActivity extends Activity {
                 }
             }
         });
-        ui.setWebChromeClient(new WebChromeClient());
+        ui.setWebChromeClient(new WebChromeClient(){
+            @Override public boolean onJsPrompt(WebView view,String url,String message,String defaultValue,JsPromptResult result){
+                EditText edit=new EditText(MainActivity.this);
+                edit.setSingleLine(true);
+                edit.setText(defaultValue);
+                edit.setSelectAllOnFocus(true);
+                new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Link de mídia").setMessage(message).setView(edit)
+                    .setPositiveButton("Abrir",(d,w)->result.confirm(edit.getText().toString().trim()))
+                    .setNegativeButton("Cancelar",(d,w)->result.cancel())
+                    .setOnCancelListener(d->result.cancel())
+                    .show();
+                return true;
+            }
+        });
         ui.addJavascriptInterface(new Bridge(),"W7");
         root.addView(ui,new FrameLayout.LayoutParams(-1,-1));
         ui.loadUrl("file:///android_asset/dashboard.html");
