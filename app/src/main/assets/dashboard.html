@@ -167,8 +167,8 @@ main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 
  window.w7Native=invoke;
  window.showMap=function(){mapOpened=true;el('mapPanel').classList.add('mapActive');W7.showMap();setTimeout(updateMapRect,200)};
  window.closeMap=function(){mapOpened=false;el('mapPanel').classList.remove('mapActive');W7.hideMap()};
- window.closeOverlay=function(){el('appsOverlay').classList.remove('visible');el('settingsOverlay').classList.remove('visible');W7.hideMedia(false);setTimeout(updateMediaRect,120)}
- window.openSettings=function(){closeOverlay();el('settingsOverlay').classList.add('visible');W7.hideMedia(true);}
+ window.closeOverlay=function(){el('appsOverlay').classList.remove('visible');el('settingsOverlay').classList.remove('visible');W7.hideMedia(false);W7.hideMapOverlay(false);setTimeout(updateMediaRect,120);setTimeout(updateMapRect,120)}
+ window.openSettings=function(){closeOverlay();el('settingsOverlay').classList.add('visible');W7.hideMedia(true);W7.hideMapOverlay(true);}
  window.openApps=function(){
   closeOverlay();var g=el('appGrid');g.innerHTML='';
   var data=[];try{data=JSON.parse(W7.appsJson())}catch(e){}
@@ -182,7 +182,7 @@ main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 
    b.onclick=function(){closeOverlay();W7.launchInstalled(app.pkg,app.cls)};
    g.appendChild(b);
   });
-  el('appsOverlay').classList.add('visible');W7.hideMedia(true);
+  el('appsOverlay').classList.add('visible');W7.hideMedia(true);W7.hideMapOverlay(true);
  }
  window.toggleSkin=function(){
   var hybrid=!document.body.classList.contains('hybrid');
@@ -216,6 +216,13 @@ main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 
   onResume:function(){updateMediaRect();updateMapRect();}
  };
 
+ function clock(){
+    var now=new Date(),clock=el('clock'),day=el('today');
+    if(clock)clock.textContent=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
+    if(day)day.textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+ }
+ clock();setInterval(clock,20000);
+ setTimeout(function(){window.showMap()},650);
  try{if(W7.getSkin()==='hybrid'){document.body.classList.add('hybrid');}}catch(e){}
  window.addEventListener('resize',function(){setTimeout(updateMediaRect,75);setTimeout(updateMapRect,75)});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Backspace')closeOverlay()});
