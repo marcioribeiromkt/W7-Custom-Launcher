@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
     private View fullscreen;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
     private ObdReader obd=new ObdReader();
-    private boolean dashboardReady=false,obdConnected=false,mediaActive=false;
+    private boolean dashboardReady=false,obdConnected=false,mediaActive=false,autoObdStarted=false;
     private String obdStatus="Selecione e conecte seu ELM327";
     private String mediaSource="youtube";
 
@@ -63,6 +63,9 @@ public class MainActivity extends Activity {
             @Override public void onPageFinished(WebView v,String url){
                 dashboardReady=true;
                 refreshObd();
+                if(!autoObdStarted&&!prefs.getString("obdMac","").isEmpty()){
+                    autoObdStarted=true;handler.postDelayed(()->connectObd(),850);
+                }
             }
         });
         ui.setWebChromeClient(new WebChromeClient());
@@ -137,6 +140,14 @@ public class MainActivity extends Activity {
                 }else i=getPackageManager().getLaunchIntentForPackage(choice);
             }
             if(i==null && !packages[index].isEmpty())i=getPackageManager().getLaunchIntentForPackage(packages[index]);
+            if(i==null && index>=5){
+                ResolveInfo nativeApp=detectNativeApp(index);
+                if(nativeApp!=null){
+                    i=new Intent(Intent.ACTION_MAIN);
+                    i.addCategory(Intent.CATEGORY_LAUNCHER);
+                    i.setClassName(nativeApp.activityInfo.packageName,nativeApp.activityInfo.name);
+                }
+            }
             if(i==null)throw new ActivityNotFoundException();
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
@@ -147,6 +158,33 @@ public class MainActivity extends Activity {
                 .setPositiveButton("Escolher aplicativo",(d,w)->chooseApp(index))
                 .setNegativeButton("Cancelar",null).show();
         }
+    }
+    private ResolveInfo detectNativeApp(int index){
+        ArrayList<ResolveInfo> apps=launcherActivities();
+        ResolveInfo best=null;int highest=0;
+        for(ResolveInfo app:apps){
+            if(app.activityInfo==null)continue;
+            String name=app.loadLabel(getPackageManager()).toString().toLowerCase(Locale.ROOT);
+            String pkg=app.activityInfo.packageName.toLowerCase(Locale.ROOT);
+            String all=name+" "+pkg;
+            int score=0;
+            if(index==5){
+                if(all.contains("zlink")||all.contains("tlink")||all.contains("autokit")||all.contains("carlink"))score=10;
+                else if(all.contains("carplay")||all.contains("android auto")||all.contains("phonelink")||all.contains("phone link")||all.contains("easyconnection"))score=7;
+                else if(all.contains("projeção")||all.contains("projection")||all.contains("mirror"))score=4;
+            }else if(index==6){
+                if(name.contains("rádio")||name.equals("radio")||name.contains("fm radio"))score=10;
+                else if(all.contains("radio"))score=6;
+            }else if(index==7){
+                if(name.contains("bluetooth")||name.contains("bt phone")||name.contains("bt dial"))score=10;
+                else if(name.contains("telefone")||name.equals("phone"))score=6;
+            }else if(index==8){
+                if(all.contains("torque")||name.contains("car scanner"))score=10;
+                else if(name.contains("obd"))score=5;
+            }
+            if(score>highest){highest=score;best=app;}
+        }
+        return best;
     }
     private ArrayList<ResolveInfo> launcherActivities(){
         Intent q=new Intent(Intent.ACTION_MAIN);
