@@ -69,16 +69,18 @@ public class ObdReader {
         return m.find()?m.group(1)+" V":"—";
     }
     private void run(BluetoothDevice device,Listener listener,int gen){
+        BluetoothSocket own=null;
+        String failure=null;
         try{
-            if(device==null){status(listener,"Selecione o adaptador ELM327",false);return;}
+            if(device==null)throw new IOException("Selecione o adaptador ELM327");
             BluetoothAdapter adapter=BluetoothAdapter.getDefaultAdapter();
-            if(adapter==null||!adapter.isEnabled()){status(listener,"Ative o Bluetooth Android",false);return;}
+            if(adapter==null||!adapter.isEnabled())throw new IOException("Bluetooth Android indisponível");
             status(listener,"Conectando a "+device.getName()+"…",false);
             adapter.cancelDiscovery();
-            BluetoothSocket current=device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-            socket=current;
-            current.connect();
-            InputStream in=current.getInputStream();OutputStream out=current.getOutputStream();
+            own=device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+            socket=own;
+            own.connect();
+            InputStream in=own.getInputStream();OutputStream out=own.getOutputStream();
             command(in,out,"ATZ",gen);Thread.sleep(300);
             command(in,out,"ATE0",gen);command(in,out,"ATL0",gen);
             command(in,out,"ATS0",gen);command(in,out,"ATH0",gen);
@@ -92,12 +94,12 @@ public class ObdReader {
                 if(live(gen))data(listener,rpm,kmh,temp,volts);
                 Thread.sleep(1100);
             }
-        }catch(SecurityException e){if(live(gen))status(listener,"Bluetooth: permissão não concedida",false);}
-        catch(Exception e){if(live(gen))status(listener,"Falha ELM327: "+e.getClass().getSimpleName(),false);}
+        }catch(SecurityException e){failure="Permissão Bluetooth negada";}
+        catch(Exception e){failure="Erro ELM327: "+(e.getMessage()==null?e.getClass().getSimpleName():e.getMessage());}
         finally{
-            if(live(gen)){running=false;status(listener,"OBD2 desconectado",false);}
-            BluetoothSocket old=socket;socket=null;
-            if(old!=null)try{old.close();}catch(Exception ignored){}
+            if(socket==own)socket=null;
+            if(own!=null)try{own.close();}catch(Exception ignored){}
+            if(live(gen)){running=false;status(listener,failure==null?"OBD2 desconectado":failure,false);}
         }
     }
 }
