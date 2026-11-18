@@ -165,7 +165,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
  }
  window.mediaLink=function(){
   var link=prompt('Cole um link de vídeo do YouTube ou música do Spotify:','https://');
-  if(link && /^https:\/\//i.test(link)){mediaOpened=true;el('mediaPlaceholder').style.display='none';updateMediaRect();W7.loadMediaUrl(link);setTimeout(updateMediaRect,300)}
+  if(link && /^https:\/\//i.test(link)){mediaIndex=link.indexOf('spotify.com')>=0?2:4;mediaOpened=true;el('mediaPlaceholder').style.display='none';updateMediaRect();W7.loadMediaUrl(link);setTimeout(updateMediaRect,300)}
  }
  window.resetMedia=function(){mediaOpened=false;el('mediaPlaceholder').style.display='flex';W7.closeMedia();}
  window.openExternalMedia=function(){W7.openApp(mediaIndex);}
