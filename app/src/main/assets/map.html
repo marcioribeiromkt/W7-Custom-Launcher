@@ -1,0 +1,43 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mapa W7</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#13263b;font-family:Roboto,Arial,sans-serif;color:#ecf7ff;overflow:hidden}
+#map{position:absolute;inset:0}
+.hud{position:absolute;top:8px;left:8px;right:8px;z-index:1000;display:flex;gap:7px;align-items:center;pointer-events:none}
+.hud>*{pointer-events:auto}
+.hud button{height:39px;min-width:39px;border-radius:10px;background:rgba(11,30,47,.95);border:1px solid #396282;color:#ebf7ff;font-size:12px;font-weight:800;padding:0 12px}
+.hud .primary{background:#237ab4;border-color:#70c7fa}
+#status{background:rgba(10,29,47,.90);border-radius:9px;padding:11px 13px;font-size:11px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fallback{display:none;position:absolute;inset:0;z-index:10;align-items:center;justify-content:center;background:linear-gradient(130deg,#102e46,#091422);flex-direction:column;text-align:center;gap:10px;padding:25px}
+#fallback strong{font-size:19px}#fallback span{font-size:12px;line-height:1.5;color:#bbd4e6}
+.leaflet-control-zoom{display:none}.leaflet-control-attribution{font-size:9px!important}
+.leaflet-container{background:#112239}.leaflet-tile{filter:saturate(.84) brightness(.90)}
+</style></head><body>
+<div id="map"></div>
+<div class="hud"><div id="status">Mapa online · localização pendente</div><button class="primary" onclick="goLocation()">⌖ MINHA POSIÇÃO</button><button onclick="map.zoomIn()">＋</button><button onclick="map.zoomOut()">－</button></div>
+<div id="fallback"><strong>Mapa indisponível</strong><span>Conecte a Winca à internet. A navegação com orientações por voz continua disponível pelo botão Google Maps do launcher.</span></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+ if(!window.L){document.getElementById('fallback').style.display='flex';return;}
+ var status=document.getElementById('status');
+ window.map=L.map('map',{zoomControl:false,attributionControl:true,preferCanvas:true}).setView([-14.2,-51.9],4);
+ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,minZoom:2,attribution:'© OpenStreetMap contributors'}).addTo(map);
+ var loc=null,marker=null,circle=null;
+ window.w7Position=function(lat,lon,accuracy){
+  if(!isFinite(lat)||!isFinite(lon))return;
+  loc=[lat,lon];
+  if(!marker){
+   marker=L.circleMarker(loc,{radius:9,weight:3,color:'#ffffff',fillColor:'#159fff',fillOpacity:1}).addTo(map);
+  }else marker.setLatLng(loc);
+  if(!circle)circle=L.circle(loc,{radius:Math.max(accuracy||20,15),color:'#2b9dec',weight:1,fillOpacity:.09}).addTo(map);
+  else circle.setLatLng(loc).setRadius(Math.max(accuracy||20,15));
+  status.textContent='POSIÇÃO ATUAL · GPS '+(Math.round(accuracy||0))+' m';
+  if(!window.userHasPanned)map.setView(loc,15,{animate:true});
+ };
+ window.goLocation=function(){window.userHasPanned=false;if(loc)map.setView(loc,16,{animate:true});else status.textContent='Aguardando GPS e permissão de localização';};
+ map.on('dragstart',function(){window.userHasPanned=true;});
+ window.addEventListener('resize',function(){setTimeout(function(){map.invalidateSize()},130)});
+})();
+</script></body></html>
