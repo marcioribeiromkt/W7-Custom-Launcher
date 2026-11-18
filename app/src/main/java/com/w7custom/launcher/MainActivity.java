@@ -1,32 +1,417 @@
 package com.w7custom.launcher;
-import android.app.*;import android.webkit.*;import android.os.*;import android.content.*;import android.graphics.Color;import android.graphics.drawable.GradientDrawable;import android.view.*;import android.widget.*;import android.provider.Settings;import android.content.pm.ResolveInfo;import java.util.*;
+
+import android.Manifest;
+import android.app.*;
+import android.bluetooth.*;
+import android.content.*;
+import android.content.pm.*;
+import android.graphics.*;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.*;
+import android.provider.Settings;
+import android.util.Base64;
+import android.view.*;
+import android.webkit.*;
+import android.widget.*;
+import org.json.*;
+import java.io.*;
+import java.util.*;
+
+/**
+ * W7 Custom Cockpit
+ * All third-party web pages run in a separate WebView WITHOUT a JavascriptInterface.
+ * The dashboard is a bundled, local asset with a restricted native bridge.
+ * No writes to MCU, factory radio, reverse camera or vehicle CAN.
+ */
 public class MainActivity extends Activity {
- final int BG=0xff09101b,PANEL=0xff1a2638,BLUE=0xff69baff; SharedPreferences prefs; LinearLayout root; ObdReader obd=new ObdReader(); TextView obdView; WebView mediaWeb; String obdText="Toque para conectar ao ELM327";
- final String[] names={"Waze","Maps","Spotify","YT Music","YouTube","Projeção","Rádio FM","Bluetooth"};
- final String[] packages={"com.waze","com.google.android.apps.maps","com.spotify.music","com.google.android.apps.youtube.music","com.google.android.youtube","","",""};
- public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences("w7",0);getWindow().getDecorView().setSystemUiVisibility(5894|1024|512);render();}
- GradientDrawable bg(int c){GradientDrawable d=new GradientDrawable();d.setColor(c);d.setCornerRadius(16);d.setStroke(1,0xff37506b);return d;}
- LinearLayout col(){LinearLayout l=new LinearLayout(this);l.setOrientation(1);return l;} LinearLayout row(){LinearLayout l=new LinearLayout(this);l.setOrientation(0);return l;}
- TextView txt(String s,int size){TextView t=new TextView(this);t.setText(s);t.setTextColor(-1);t.setTextSize(size);t.setGravity(17);return t;}
- Button btn(String s,Runnable r){Button b=new Button(this);b.setText(s);b.setTextColor(-1);b.setAllCaps(false);b.setBackground(bg(PANEL));b.setOnClickListener(v->r.run());return b;}
- void render(){boolean cockpit=prefs.getString("skin","cockpit").equals("cockpit");root=col();root.setPadding(12,8,12,8);root.setBackgroundColor(BG);setContentView(root);
- LinearLayout header=row();root.addView(header,new LinearLayout.LayoutParams(-1,52));TextView title=txt("W7 CUSTOM OS   •   CHERY TIGGO",19);title.setTextColor(BLUE);header.addView(title,new LinearLayout.LayoutParams(0,-1,1));header.addView(btn(cockpit?"◈ Cockpit":"▦ Hybrid",()->skins()),new LinearLayout.LayoutParams(170,-1));
- LinearLayout body=row();root.addView(body,new LinearLayout.LayoutParams(-1,0,1));LinearLayout left=col(),right=col();LinearLayout.LayoutParams a=new LinearLayout.LayoutParams(0,-1,cockpit?52:58);a.rightMargin=8;body.addView(left,a);body.addView(right,new LinearLayout.LayoutParams(0,-1,cockpit?48:42));
- LinearLayout nav=panel(left,cockpit?6:7,"NAVEGAÇÃO");TextView map=txt("Google Maps  •  Principal\nToque para escolher navegação",22);nav.addView(map,new LinearLayout.LayoutParams(-1,0,1));map.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Navegação").setItems(new String[]{"Google Maps (principal)","Waze"},(d,n)->launch(n==0?1:0)).show());
- LinearLayout tele=panel(left,cockpit?4:3,cockpit?"TELEMETRIA OBD2":"INSTRUMENTOS / ATALHOS");TextView data=txt(obdText,18);obdView=data;tele.addView(data,new LinearLayout.LayoutParams(-1,0,1));data.setOnClickListener(v->connectObd());
- LinearLayout media=panel(right,7,"MÍDIA / YOUTUBE");mediaWeb=new WebView(this);mediaWeb.setBackgroundColor(0xff101923);mediaWeb.getSettings().setJavaScriptEnabled(true);mediaWeb.getSettings().setDomStorageEnabled(true);mediaWeb.setWebViewClient(new WebViewClient());mediaWeb.setWebChromeClient(new WebChromeClient());media.addView(mediaWeb,new LinearLayout.LayoutParams(-1,0,1));mediaWeb.loadUrl(prefs.getString("mediaUrl","https://m.youtube.com/"));LinearLayout mr=row();media.addView(mr,new LinearLayout.LayoutParams(-1,48));for(int i=2;i<=4;i++){final int id=i;mr.addView(btn(names[i],()->openMedia(id)),new LinearLayout.LayoutParams(0,-1,1));}
- LinearLayout shortcuts=panel(right,3,"ENTRETENIMENTO");LinearLayout sr=row();shortcuts.addView(sr,new LinearLayout.LayoutParams(-1,0,1));for(int i=5;i<=7;i++){final int id=i;sr.addView(btn(names[i],()->launch(id)),new LinearLayout.LayoutParams(0,-1,1));}
- LinearLayout bottom=row();bottom.setGravity(Gravity.CENTER);root.addView(bottom,new LinearLayout.LayoutParams(-1,58));bottom.addView(btn("▦  Aplicativos",()->apps()),new LinearLayout.LayoutParams(210,52));bottom.addView(btn("⚙",()->settings()),new LinearLayout.LayoutParams(65,52));}
- LinearLayout panel(LinearLayout parent,int weight,String title){LinearLayout p=col();p.setPadding(10,8,10,8);p.setBackground(bg(PANEL));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,0,weight);lp.setMargins(0,3,0,3);parent.addView(p,lp);TextView t=txt(title,15);t.setTextColor(BLUE);p.addView(t,new LinearLayout.LayoutParams(-1,34));return p;}
- void openMedia(int id){String url=id==2?"https://open.spotify.com/":id==3?"https://music.youtube.com/":"https://m.youtube.com/";new AlertDialog.Builder(this).setTitle(names[id]).setItems(new String[]{"Abrir dentro do painel","Abrir aplicativo em tela cheia","Colar link de vídeo ou música"},(d,n)->{if(n==0){prefs.edit().putString("mediaUrl",url).apply();if(mediaWeb!=null)mediaWeb.loadUrl(url);}else if(n==1)launch(id);else{EditText input=new EditText(this);input.setSingleLine();input.setHint("https://...");new AlertDialog.Builder(this).setTitle("Link de mídia").setView(input).setPositiveButton("Abrir",(a,b)->{String link=input.getText().toString().trim();if(link.startsWith("https://")){prefs.edit().putString("mediaUrl",link).apply();if(mediaWeb!=null)mediaWeb.loadUrl(link);}else Toast.makeText(this,"Use um link HTTPS",Toast.LENGTH_LONG).show();}).setNegativeButton("Cancelar",null).show();}}).show();}
- void connectObd(){if(android.os.Build.VERSION.SDK_INT>=31 && checkSelfPermission("android.permission.BLUETOOTH_CONNECT")!=android.content.pm.PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{"android.permission.BLUETOOTH_CONNECT"},101);return;}obdText="Conectando ao ELM327...";if(obdView!=null)obdView.setText(obdText);obd.start(new ObdReader.Listener(){public void status(String v){obdText=v;if(obdView!=null)obdView.setText(v);}public void values(String v){obdText=v;if(obdView!=null)obdView.setText(v);}});}
- @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] results){super.onRequestPermissionsResult(requestCode,permissions,results);if(requestCode==101&&results.length>0&&results[0]==android.content.pm.PackageManager.PERMISSION_GRANTED)connectObd();}
- @Override protected void onDestroy(){obd.stop();if(mediaWeb!=null){mediaWeb.stopLoading();mediaWeb.destroy();mediaWeb=null;}super.onDestroy();}
- void skins(){String[] options={"W7 Cockpit","W7 Hybrid"};new AlertDialog.Builder(this).setTitle("Selecionar visual").setItems(options,(d,n)->{prefs.edit().putString("skin",n==0?"cockpit":"hybrid").apply();render();}).show();}
- String pkg(int i){return prefs.getString("pkg"+i,packages[i]);}
- void launch(int i){try{Intent in=getPackageManager().getLaunchIntentForPackage(pkg(i));if(in==null)throw new Exception();startActivity(in);}catch(Exception e){new AlertDialog.Builder(this).setMessage("Aplicativo não localizado. Configure o pacote de "+names[i]+".").setPositiveButton("Configurar",(d,w)->configure(i)).setNegativeButton("Cancelar",null).show();}}
- void configure(int i){Intent query=new Intent(Intent.ACTION_MAIN);query.addCategory(Intent.CATEGORY_LAUNCHER);List<ResolveInfo> found=getPackageManager().queryIntentActivities(query,0);Collections.sort(found,(a,b)->a.loadLabel(getPackageManager()).toString().compareToIgnoreCase(b.loadLabel(getPackageManager()).toString()));String[] labels=new String[found.size()+1];for(int j=0;j<found.size();j++)labels[j]=found.get(j).loadLabel(getPackageManager()).toString();labels[found.size()]="Digitar pacote manualmente";new AlertDialog.Builder(this).setTitle("Escolha o aplicativo para "+names[i]).setItems(labels,(d,n)->{if(n<found.size()){prefs.edit().putString("pkg"+i,found.get(n).activityInfo.packageName).apply();Toast.makeText(this,"Atalho configurado",Toast.LENGTH_SHORT).show();}else manualPackage(i);}).show();}
- void manualPackage(int i){EditText input=new EditText(this);input.setSingleLine();input.setText(pkg(i));new AlertDialog.Builder(this).setTitle("Pacote: "+names[i]).setView(input).setPositiveButton("Salvar",(d,w)->prefs.edit().putString("pkg"+i,input.getText().toString().trim()).apply()).setNegativeButton("Cancelar",null).show();}
- void settings(){String[] items=new String[names.length+1];for(int i=0;i<names.length;i++)items[i]=names[i]+" — "+pkg(i);items[names.length]="Configurações Android";new AlertDialog.Builder(this).setTitle("Configurar atalhos").setItems(items,(d,i)->{if(i==names.length)startActivity(new Intent(Settings.ACTION_SETTINGS));else configure(i);}).show();}
- void apps(){Intent query=new Intent(Intent.ACTION_MAIN);query.addCategory(Intent.CATEGORY_LAUNCHER);List<ResolveInfo> found=getPackageManager().queryIntentActivities(query,0);Collections.sort(found,(a,b)->a.loadLabel(getPackageManager()).toString().compareToIgnoreCase(b.loadLabel(getPackageManager()).toString()));ScrollView scroll=new ScrollView(this);GridLayout grid=new GridLayout(this);grid.setColumnCount(3);grid.setPadding(8,8,8,8);scroll.addView(grid);int width=(int)(getResources().getDisplayMetrics().widthPixels*0.77f/3)-18;for(ResolveInfo ri:found){LinearLayout tile=col();tile.setGravity(Gravity.CENTER);tile.setPadding(6,10,6,10);tile.setBackground(bg(PANEL));ImageView icon=new ImageView(this);icon.setImageDrawable(ri.loadIcon(getPackageManager()));tile.addView(icon,new LinearLayout.LayoutParams(54,54));TextView label=txt(ri.loadLabel(getPackageManager()).toString(),16);label.setMaxLines(2);tile.addView(label,new LinearLayout.LayoutParams(-1,55));GridLayout.LayoutParams gp=new GridLayout.LayoutParams();gp.width=Math.max(135,width);gp.height=132;gp.setMargins(5,5,5,5);grid.addView(tile,gp);tile.setOnClickListener(v->{Intent in=new Intent(Intent.ACTION_MAIN);in.addCategory(Intent.CATEGORY_LAUNCHER);in.setClassName(ri.activityInfo.packageName,ri.activityInfo.name);startActivity(in);});}new AlertDialog.Builder(this).setTitle("Aplicativos — toque no ícone").setView(scroll).setPositiveButton("Fechar",null).show();}
+    private final String[] labels={"Waze","Google Maps","Spotify","YouTube Music","YouTube","Projeção","Rádio FM","Bluetooth","Aplicativo OBD"};
+    private final String[] packages={"com.waze","com.google.android.apps.maps","com.spotify.music","com.google.android.apps.youtube.music","com.google.android.youtube","","","","org.prowl.torque"};
+    private final Handler handler=new Handler(Looper.getMainLooper());
+    private SharedPreferences prefs;
+    private FrameLayout root;
+    private WebView ui,media;
+    private View fullscreen;
+    private WebChromeClient.CustomViewCallback fullscreenCallback;
+    private ObdReader obd=new ObdReader();
+    private boolean dashboardReady=false,obdConnected=false;
+    private String obdStatus="Selecione e conecte seu ELM327";
+    private String mediaSource="youtube";
+
+    @Override public void onCreate(Bundle b){
+        super.onCreate(b);
+        prefs=getSharedPreferences("w7",MODE_PRIVATE);
+        getWindow().setStatusBarColor(0xff080e19);
+        getWindow().setNavigationBarColor(0xff080e19);
+        root=new FrameLayout(this);
+        root.setBackgroundColor(0xff080e19);
+        setContentView(root);
+        ui=new WebView(this);
+        ui.setBackgroundColor(0xff080e19);
+        WebSettings cfg=ui.getSettings();
+        cfg.setJavaScriptEnabled(true);
+        cfg.setDomStorageEnabled(true);
+        cfg.setAllowFileAccess(true);
+        cfg.setAllowFileAccessFromFileURLs(false);
+        cfg.setAllowUniversalAccessFromFileURLs(false);
+        cfg.setMediaPlaybackRequiresUserGesture(true);
+        ui.setWebViewClient(new WebViewClient(){
+            @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest request){
+                Uri u=request.getUrl();
+                return !"file".equalsIgnoreCase(u.getScheme()) || !"/android_asset/dashboard.html".equals(u.getPath());
+            }
+            @Override public void onPageFinished(WebView v,String url){
+                dashboardReady=true;
+                refreshObd();
+            }
+        });
+        ui.setWebChromeClient(new WebChromeClient());
+        ui.addJavascriptInterface(new Bridge(),"W7");
+        root.addView(ui,new FrameLayout.LayoutParams(-1,-1));
+        ui.loadUrl("file:///android_asset/dashboard.html");
+    }
+
+    private void js(String call){
+        handler.post(()->{if(ui!=null&&dashboardReady)ui.evaluateJavascript(call,null);});
+    }
+    private void refreshObd(){
+        try{
+            JSONObject j=new JSONObject();
+            j.put("message",obdStatus);j.put("connected",obdConnected);
+            js("window.W7Bridge&&W7Bridge.onStatus("+j.toString()+")");
+        }catch(Exception ignored){}
+    }
+    private void sendData(int rpm,int kmh,int temp,String voltage){
+        try{
+            JSONObject j=new JSONObject();
+            j.put("rpm",rpm);j.put("kmh",kmh);j.put("temp",temp);j.put("volt",voltage);
+            js("window.W7Bridge&&W7Bridge.onData("+j.toString()+")");
+        }catch(Exception ignored){}
+    }
+    private class Bridge {
+        @JavascriptInterface public String getSkin(){return prefs.getString("skin","cockpit");}
+        @JavascriptInterface public void saveSkin(String skin){
+            if("hybrid".equals(skin)||"cockpit".equals(skin))prefs.edit().putString("skin",skin).apply();
+        }
+        @JavascriptInterface public void openApp(int index){handler.post(()->launch(index));}
+        @JavascriptInterface public void configure(int index){handler.post(()->chooseApp(index));}
+        @JavascriptInterface public void launchInstalled(String pkg,String cls){
+            handler.post(()->startComponent(pkg,cls));
+        }
+        @JavascriptInterface public String appsJson(){return applicationListJson();}
+        @JavascriptInterface public void chooseObd(){handler.post(()->chooseBluetooth());}
+        @JavascriptInterface public void connectObd(){handler.post(()->connectObd());}
+        @JavascriptInterface public void loadMedia(String kind){handler.post(()->loadMedia(kind));}
+        @JavascriptInterface public void loadMediaUrl(String url){handler.post(()->loadMediaUrl(url));}
+        @JavascriptInterface public void closeMedia(){handler.post(()->closeMedia());}
+        @JavascriptInterface public void mediaRect(double x,double y,double w,double h,double cw,double ch){
+            handler.post(()->setMediaPosition(x,y,w,h,cw,ch));
+        }
+        @JavascriptInterface public void androidSettings(){handler.post(()->openSettings());}
+        @JavascriptInterface public void originalHome(){handler.post(()->originalHome());}
+    }
+
+    private void startComponent(String pkg,String cls){
+        try{
+            if(pkg==null||cls==null||pkg.trim().isEmpty()||cls.trim().isEmpty())throw new Exception("Pacote inválido");
+            Intent i=new Intent(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            i.setClassName(pkg,cls);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }catch(Exception e){toast("Não foi possível abrir este aplicativo");}
+    }
+    private String configured(int index){return prefs.getString("shortcut"+index,"");}
+    private void launch(int index){
+        if(index<0||index>=labels.length)return;
+        try{
+            String choice=configured(index);
+            Intent i=null;
+            if(!choice.isEmpty()){
+                ComponentName c=ComponentName.unflattenFromString(choice);
+                if(c!=null){
+                    i=new Intent(Intent.ACTION_MAIN);
+                    i.addCategory(Intent.CATEGORY_LAUNCHER);
+                    i.setComponent(c);
+                }else i=getPackageManager().getLaunchIntentForPackage(choice);
+            }
+            if(i==null && !packages[index].isEmpty())i=getPackageManager().getLaunchIntentForPackage(packages[index]);
+            if(i==null)throw new ActivityNotFoundException();
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }catch(Exception e){
+            new AlertDialog.Builder(this)
+                .setTitle(labels[index]+" não está vinculado")
+                .setMessage("Escolha o aplicativo que já existe na central. Não será instalado outro aplicativo.")
+                .setPositiveButton("Escolher aplicativo",(d,w)->chooseApp(index))
+                .setNegativeButton("Cancelar",null).show();
+        }
+    }
+    private ArrayList<ResolveInfo> launcherActivities(){
+        Intent q=new Intent(Intent.ACTION_MAIN);
+        q.addCategory(Intent.CATEGORY_LAUNCHER);
+        ArrayList<ResolveInfo> items=new ArrayList<>(getPackageManager().queryIntentActivities(q,0));
+        Collections.sort(items,(a,b)->a.loadLabel(getPackageManager()).toString().compareToIgnoreCase(b.loadLabel(getPackageManager()).toString()));
+        return items;
+    }
+    private void chooseApp(int index){
+        if(index<0||index>=labels.length)return;
+        ArrayList<ResolveInfo> apps=launcherActivities();
+        String[] names=new String[apps.size()+2];
+        names[0]="LIMPAR VÍNCULO / UTILIZAR PADRÃO";
+        for(int k=0;k<apps.size();k++)names[k+1]=apps.get(k).loadLabel(getPackageManager()).toString();
+        names[names.length-1]="INFORMAR PACOTE MANUALMENTE";
+        new AlertDialog.Builder(this).setTitle("Vincular "+labels[index])
+            .setItems(names,(d,k)->{
+                if(k==0){prefs.edit().remove("shortcut"+index).apply();toast("Vínculo restaurado");}
+                else if(k==names.length-1)manualPackage(index);
+                else{
+                    ResolveInfo ri=apps.get(k-1);
+                    ComponentName component=new ComponentName(ri.activityInfo.packageName,ri.activityInfo.name);
+                    prefs.edit().putString("shortcut"+index,component.flattenToString()).apply();
+                    toast(labels[index]+": "+ri.loadLabel(getPackageManager()));
+                }
+            }).setNegativeButton("Cancelar",null).show();
+    }
+    private void manualPackage(int index){
+        EditText edit=new EditText(this);
+        edit.setSingleLine(true);
+        edit.setHint("com.fabricante.aplicativo");
+        new AlertDialog.Builder(this).setTitle("Pacote "+labels[index])
+            .setView(edit).setPositiveButton("Salvar",(d,w)->{
+                String p=edit.getText().toString().trim();
+                if(p.matches("[A-Za-z0-9_.]+"))
+                    prefs.edit().putString("shortcut"+index,p).apply();
+                else toast("Nome de pacote inválido");
+            }).setNegativeButton("Cancelar",null).show();
+    }
+    private String applicationListJson(){
+        JSONArray array=new JSONArray();
+        try{
+            PackageManager pm=getPackageManager();
+            ArrayList<ResolveInfo> apps=launcherActivities();
+            HashSet<String> seen=new HashSet<>();
+            for(ResolveInfo ri:apps){
+                if(ri.activityInfo==null)continue;
+                String p=ri.activityInfo.packageName,c=ri.activityInfo.name;
+                if(!seen.add(p+"/"+c))continue;
+                JSONObject app=new JSONObject();
+                app.put("label",ri.loadLabel(pm).toString());app.put("pkg",p);app.put("cls",c);
+                try{
+                    Drawable icon=ri.loadIcon(pm);
+                    Bitmap bitmap=Bitmap.createBitmap(60,60,Bitmap.Config.ARGB_8888);
+                    Canvas canvas=new Canvas(bitmap);
+                    icon.setBounds(0,0,60,60);icon.draw(canvas);
+                    ByteArrayOutputStream bytes=new ByteArrayOutputStream(4096);
+                    bitmap.compress(Bitmap.CompressFormat.PNG,85,bytes);
+                    app.put("icon",Base64.encodeToString(bytes.toByteArray(),Base64.NO_WRAP));
+                    bitmap.recycle();
+                }catch(Exception ignored){app.put("icon","");}
+                array.put(app);
+                if(array.length()>=100)break;
+            }
+        }catch(Exception ignored){}
+        return array.toString();
+    }
+
+    private boolean bluetoothPermission(){
+        if(Build.VERSION.SDK_INT>=31 && checkSelfPermission("android.permission.BLUETOOTH_CONNECT")!=PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{"android.permission.BLUETOOTH_CONNECT"},410);
+            return false;
+        }
+        return true;
+    }
+    private BluetoothDevice deviceForSelected(){
+        BluetoothAdapter bt=BluetoothAdapter.getDefaultAdapter();
+        if(bt==null||!bt.isEnabled())return null;
+        String mac=prefs.getString("obdMac","");
+        BluetoothDevice first=null;
+        for(BluetoothDevice device:bt.getBondedDevices()){
+            if(device.getAddress().equalsIgnoreCase(mac))return device;
+            String name=device.getName();
+            if(name!=null){
+                String s=name.toUpperCase(Locale.US);
+                if(first==null&&(s.contains("OBD")||s.contains("ELM")||s.contains("VLINK")||s.contains("VGATE")))first=device;
+            }
+        }
+        return first;
+    }
+    private void chooseBluetooth(){
+        if(!bluetoothPermission())return;
+        try{
+            BluetoothAdapter bt=BluetoothAdapter.getDefaultAdapter();
+            if(bt==null){showObdHelp("A central não expõe Bluetooth Android. O Bluetooth do rádio pode ser controlado pela MCU, separado do Android.");return;}
+            if(!bt.isEnabled()){showObdHelp("Ative o Bluetooth Android e emparelhe o adaptador ELM327 nas configurações.");return;}
+            ArrayList<BluetoothDevice> devices=new ArrayList<>(bt.getBondedDevices());
+            if(devices.size()==0){showObdHelp("Nenhum dispositivo emparelhado está visível ao Android. Verifique o pareamento do ELM327 nas configurações Bluetooth da Winca.");return;}
+            String[] names=new String[devices.size()];
+            for(int i=0;i<devices.size();i++){
+                BluetoothDevice d=devices.get(i);names[i]=(d.getName()==null?"Bluetooth":d.getName())+"  ·  "+d.getAddress();
+            }
+            new AlertDialog.Builder(this).setTitle("Selecione seu ELM327")
+                .setItems(names,(dialog,which)->{
+                    prefs.edit().putString("obdMac",devices.get(which).getAddress()).apply();
+                    connectObd();
+                }).setNegativeButton("Cancelar",null).show();
+        }catch(Exception e){showObdHelp("Não foi possível listar os dispositivos Bluetooth: "+e.getClass().getSimpleName());}
+    }
+    private void showObdHelp(String message){
+        obdStatus=message;obdConnected=false;refreshObd();
+        new AlertDialog.Builder(this).setTitle("Conexão OBD2")
+            .setMessage(message+"\n\nSe sua Winca utiliza um Bluetooth exclusivo da MCU, o adaptador pode não estar disponível aos aplicativos Android.")
+            .setPositiveButton("Abrir configurações",(d,w)->{
+                try{startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));}catch(Exception e){openSettings();}
+            })
+            .setNeutralButton("Aplicativo OBD",(d,w)->launch(8))
+            .setNegativeButton("Fechar",null).show();
+    }
+    private void connectObd(){
+        if(!bluetoothPermission())return;
+        try{
+            BluetoothDevice device=deviceForSelected();
+            if(device==null){chooseBluetooth();return;}
+            obdStatus="Conectando ao ELM327…";obdConnected=false;refreshObd();
+            obd.start(device,new ObdReader.Listener(){
+                @Override public void onStatus(String text,boolean connected){
+                    obdStatus=text;obdConnected=connected;refreshObd();
+                }
+                @Override public void onData(int rpm,int kmh,int temp,String voltage){
+                    obdConnected=true;obdStatus="Leitura ativa";
+                    refreshObd();sendData(rpm,kmh,temp,voltage);
+                }
+            });
+        }catch(Exception e){showObdHelp("Não foi possível iniciar o ELM327: "+e.getClass().getSimpleName());}
+    }
+    @Override public void onRequestPermissionsResult(int request,String[] permissions,int[] grants){
+        super.onRequestPermissionsResult(request,permissions,grants);
+        if(request==410 && grants.length>0 && grants[0]==PackageManager.PERMISSION_GRANTED)chooseBluetooth();
+    }
+
+    private void ensureMedia(){
+        if(media!=null)return;
+        media=new WebView(this);
+        media.setBackgroundColor(0xff101a29);
+        WebSettings s=media.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setMediaPlaybackRequiresUserGesture(true);
+        s.setSupportMultipleWindows(false);
+        s.setJavaScriptCanOpenWindowsAutomatically(false);
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        s.setLoadsImagesAutomatically(true);
+        media.setWebViewClient(new WebViewClient(){
+            @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){
+                Uri u=r.getUrl();
+                String scheme=u.getScheme();
+                if("https".equalsIgnoreCase(scheme)||"http".equalsIgnoreCase(scheme))return false;
+                if("intent".equalsIgnoreCase(scheme)){
+                    try{startActivity(Intent.parseUri(u.toString(),Intent.URI_INTENT_SCHEME));}
+                    catch(Exception ignored){toast("Aplicativo externo indisponível");}
+                }
+                return true;
+            }
+            @Override public void onReceivedError(WebView v,WebResourceRequest req,WebResourceError error){
+                if(req.isForMainFrame())toast("Sem conexão ou página indisponível. Use Abrir aplicativo.");
+            }
+        });
+        media.setWebChromeClient(new WebChromeClient(){
+            @Override public void onShowCustomView(View view,CustomViewCallback callback){
+                if(fullscreen!=null){callback.onCustomViewHidden();return;}
+                fullscreen=view;fullscreenCallback=callback;
+                if(media!=null)media.setVisibility(View.INVISIBLE);
+                FrameLayout.LayoutParams p=new FrameLayout.LayoutParams(-1,-1);
+                root.addView(fullscreen,p);
+            }
+            @Override public void onHideCustomView(){hideFullscreen();}
+        });
+        CookieManager.getInstance().setAcceptCookie(true);
+        if(Build.VERSION.SDK_INT>=21)CookieManager.getInstance().setAcceptThirdPartyCookies(media,true);
+        root.addView(media,new FrameLayout.LayoutParams(1,1));
+        media.setVisibility(View.GONE);
+    }
+    private void hideFullscreen(){
+        if(fullscreen==null)return;
+        root.removeView(fullscreen);fullscreen=null;
+        if(fullscreenCallback!=null){fullscreenCallback.onCustomViewHidden();fullscreenCallback=null;}
+        if(media!=null)media.setVisibility(View.VISIBLE);
+    }
+    private void loadMedia(String kind){
+        String url;
+        switch(kind){
+            case "spotify":url="https://open.spotify.com/";break;
+            case "music":url="https://music.youtube.com/";break;
+            default:kind="youtube";url="https://m.youtube.com/";break;
+        }
+        mediaSource=kind;ensureMedia();media.setVisibility(View.VISIBLE);media.loadUrl(url);
+    }
+    private void loadMediaUrl(String address){
+        try{
+            Uri uri=Uri.parse(address);
+            String host=uri.getHost();
+            if(!"https".equalsIgnoreCase(uri.getScheme())||host==null)throw new Exception();
+            host=host.toLowerCase(Locale.US);
+            boolean youtube=host.equals("youtu.be")||host.equals("youtube.com")||host.endsWith(".youtube.com");
+            boolean spotify=host.equals("open.spotify.com");
+            if(!youtube&&!spotify)throw new Exception();
+            String url=uri.toString();
+            if(youtube){
+                String id=host.equals("youtu.be")?uri.getLastPathSegment():uri.getQueryParameter("v");
+                if(id==null && uri.getPathSegments().size()>=2 && uri.getPathSegments().get(0).equals("shorts"))id=uri.getPathSegments().get(1);
+                if(id!=null && id.matches("[A-Za-z0-9_-]{11}"))url="https://www.youtube.com/embed/"+id+"?autoplay=0";
+            }else{
+                List<String> segments=uri.getPathSegments();
+                if(segments.size()>=2&&(segments.get(0).equals("track")||segments.get(0).equals("episode")||segments.get(0).equals("playlist"))){
+                    url="https://open.spotify.com/embed/"+segments.get(0)+"/"+segments.get(1);
+                }
+            }
+            ensureMedia();media.setVisibility(View.VISIBLE);media.loadUrl(url);
+        }catch(Exception e){toast("Use um link HTTPS válido do YouTube ou Spotify");}
+    }
+    private void setMediaPosition(double x,double y,double w,double h,double cssWidth,double cssHeight){
+        if(media==null||media.getVisibility()!=View.VISIBLE||cssWidth<=0||cssHeight<=0)return;
+        double sx=ui.getWidth()/cssWidth,sy=ui.getHeight()/cssHeight;
+        FrameLayout.LayoutParams p=new FrameLayout.LayoutParams((int)(w*sx),(int)(h*sy));
+        p.leftMargin=(int)(x*sx);p.topMargin=(int)(y*sy);
+        media.setLayoutParams(p);
+        media.bringToFront();
+    }
+    private void closeMedia(){
+        hideFullscreen();
+        if(media!=null){media.stopLoading();media.loadUrl("about:blank");media.setVisibility(View.GONE);}
+    }
+    private void openSettings(){
+        try{startActivity(new Intent(Settings.ACTION_SETTINGS));}catch(Exception e){toast("Configurações indisponíveis");}
+    }
+    private void originalHome(){
+        Intent query=new Intent(Intent.ACTION_MAIN);query.addCategory(Intent.CATEGORY_HOME);
+        ArrayList<ResolveInfo> homes=new ArrayList<>(getPackageManager().queryIntentActivities(query,0));
+        ArrayList<ResolveInfo> available=new ArrayList<>();
+        for(ResolveInfo r:homes)if(r.activityInfo!=null && !getPackageName().equals(r.activityInfo.packageName))available.add(r);
+        if(available.isEmpty()){
+            new AlertDialog.Builder(this).setTitle("Launcher original").setMessage("Não encontrei outro launcher acessível. Abra Aplicativos padrão nas configurações para restaurar a tela inicial da Winca.")
+                .setPositiveButton("Configurações",(d,w)->openSettings()).setNegativeButton("Fechar",null).show();
+            return;
+        }
+        String[] names=new String[available.size()];
+        for(int i=0;i<available.size();i++)names[i]=available.get(i).loadLabel(getPackageManager()).toString();
+        new AlertDialog.Builder(this).setTitle("Abrir tela inicial original")
+            .setItems(names,(d,i)->startComponent(available.get(i).activityInfo.packageName,available.get(i).activityInfo.name))
+            .setNegativeButton("Cancelar",null).show();
+    }
+    private void toast(String msg){Toast.makeText(this,msg,Toast.LENGTH_LONG).show();}
+    @Override protected void onResume(){
+        super.onResume();js("window.W7Bridge&&W7Bridge.onResume()");
+    }
+    @Override protected void onDestroy(){
+        obd.stop();
+        if(media!=null){closeMedia();root.removeView(media);media.destroy();media=null;}
+        if(ui!=null){ui.removeJavascriptInterface("W7");ui.destroy();ui=null;}
+        super.onDestroy();
+    }
+    @Override public void onBackPressed(){
+        if(fullscreen!=null){hideFullscreen();return;}
+        if(media!=null&&media.getVisibility()==View.VISIBLE&&media.canGoBack()){media.goBack();return;}
+        js("window.closeOverlay&&window.closeOverlay()");
+        super.onBackPressed();
+    }
 }
