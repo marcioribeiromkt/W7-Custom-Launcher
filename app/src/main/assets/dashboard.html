@@ -133,8 +133,8 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
  function el(id){return document.getElementById(id)}
  function invoke(method,args){try{if(window.W7&&typeof W7[method]==='function')return W7[method].apply(W7,args||[])}catch(e){}}
  window.w7Native=invoke;
- window.closeOverlay=function(){el('appsOverlay').classList.remove('visible');el('settingsOverlay').classList.remove('visible')}
- window.openSettings=function(){closeOverlay();el('settingsOverlay').classList.add('visible');}
+ window.closeOverlay=function(){el('appsOverlay').classList.remove('visible');el('settingsOverlay').classList.remove('visible');W7.hideMedia(false);setTimeout(updateMediaRect,120)}
+ window.openSettings=function(){closeOverlay();el('settingsOverlay').classList.add('visible');W7.hideMedia(true);}
  window.openApps=function(){
   closeOverlay();var g=el('appGrid');g.innerHTML='';
   var data=[];try{data=JSON.parse(W7.appsJson())}catch(e){}
@@ -148,7 +148,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
    b.onclick=function(){closeOverlay();W7.launchInstalled(app.pkg,app.cls)};
    g.appendChild(b);
   });
-  el('appsOverlay').classList.add('visible');
+  el('appsOverlay').classList.add('visible');W7.hideMedia(true);
  }
  window.toggleSkin=function(){
   var hybrid=!document.body.classList.contains('hybrid');
@@ -161,11 +161,11 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
   mediaMode=kind;mediaIndex=index;mediaOpened=true;
   var all=document.querySelectorAll('.source');for(var i=0;i<all.length;i++)all[i].classList.remove('selected');
   button.classList.add('selected');el('mediaPlaceholder').style.display='none';
-  updateMediaRect();W7.loadMedia(kind);
+  updateMediaRect();W7.loadMedia(kind);setTimeout(updateMediaRect,300);
  }
  window.mediaLink=function(){
   var link=prompt('Cole um link de vídeo do YouTube ou música do Spotify:','https://');
-  if(link && /^https:\/\//i.test(link)){mediaOpened=true;el('mediaPlaceholder').style.display='none';updateMediaRect();W7.loadMediaUrl(link)}
+  if(link && /^https:\/\//i.test(link)){mediaOpened=true;el('mediaPlaceholder').style.display='none';updateMediaRect();W7.loadMediaUrl(link);setTimeout(updateMediaRect,300)}
  }
  window.resetMedia=function(){mediaOpened=false;el('mediaPlaceholder').style.display='flex';W7.closeMedia();}
  window.openExternalMedia=function(){W7.openApp(mediaIndex);}
@@ -174,6 +174,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
   var r=el('mediaScreen').getBoundingClientRect();
   W7.mediaRect(r.left+1,r.top+1,r.width-2,r.height-2,window.innerWidth,window.innerHeight);
  }
+ window.updateMediaRect=updateMediaRect;
  window.W7Bridge={
   onStatus:function(s){el('obdMessage').textContent=s.message||'';el('obdBadge').textContent=s.connected?'ELM327 ONLINE':'DESCONECTADO';el('obdBadge').style.color=s.connected?'#5eebc6':'#b0c5d5';},
   onData:function(d){el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent='LEITURA ATIVA';},
