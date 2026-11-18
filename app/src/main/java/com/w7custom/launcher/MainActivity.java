@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
     private View fullscreen;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
     private ObdReader obd=new ObdReader();
-    private boolean dashboardReady=false,obdConnected=false;
+    private boolean dashboardReady=false,obdConnected=false,mediaActive=false;
     private String obdStatus="Selecione e conecte seu ELM327";
     private String mediaSource="youtube";
 
@@ -104,6 +104,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void loadMedia(String kind){handler.post(()->loadMedia(kind));}
         @JavascriptInterface public void loadMediaUrl(String url){handler.post(()->loadMediaUrl(url));}
         @JavascriptInterface public void closeMedia(){handler.post(()->closeMedia());}
+        @JavascriptInterface public void hideMedia(boolean hidden){handler.post(()->{if(media!=null){media.setVisibility(hidden?View.INVISIBLE:(mediaActive?View.VISIBLE:View.GONE));if(!hidden && mediaActive)js("window.updateMediaRect&&window.updateMediaRect()");}});}
         @JavascriptInterface public void mediaRect(double x,double y,double w,double h,double cw,double ch){
             handler.post(()->setMediaPosition(x,y,w,h,cw,ch));
         }
@@ -342,7 +343,7 @@ public class MainActivity extends Activity {
             case "music":url="https://music.youtube.com/";break;
             default:kind="youtube";url="https://m.youtube.com/";break;
         }
-        mediaSource=kind;ensureMedia();media.setVisibility(View.VISIBLE);media.loadUrl(url);
+        mediaSource=kind;ensureMedia();mediaActive=true;media.setVisibility(View.VISIBLE);media.loadUrl(url);js("window.updateMediaRect&&window.updateMediaRect()");
     }
     private void loadMediaUrl(String address){
         try{
@@ -364,7 +365,7 @@ public class MainActivity extends Activity {
                     url="https://open.spotify.com/embed/"+segments.get(0)+"/"+segments.get(1);
                 }
             }
-            ensureMedia();media.setVisibility(View.VISIBLE);media.loadUrl(url);
+            ensureMedia();mediaActive=true;media.setVisibility(View.VISIBLE);media.loadUrl(url);js("window.updateMediaRect&&window.updateMediaRect()");
         }catch(Exception e){toast("Use um link HTTPS válido do YouTube ou Spotify");}
     }
     private void setMediaPosition(double x,double y,double w,double h,double cssWidth,double cssHeight){
@@ -376,7 +377,7 @@ public class MainActivity extends Activity {
         media.bringToFront();
     }
     private void closeMedia(){
-        hideFullscreen();
+        hideFullscreen();mediaActive=false;
         if(media!=null){media.stopLoading();media.loadUrl("about:blank");media.setVisibility(View.GONE);}
     }
     private void openSettings(){
@@ -412,6 +413,5 @@ public class MainActivity extends Activity {
         if(fullscreen!=null){hideFullscreen();return;}
         if(media!=null&&media.getVisibility()==View.VISIBLE&&media.canGoBack()){media.goBack();return;}
         js("window.closeOverlay&&window.closeOverlay()");
-        super.onBackPressed();
     }
 }
