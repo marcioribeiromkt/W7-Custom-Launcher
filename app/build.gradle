@@ -2,5 +2,5 @@ plugins { id 'com.android.application' }
 android {
  namespace 'com.w7custom.launcher'
  compileSdk 34
- defaultConfig { applicationId 'com.w7custom.launcher'; minSdk 27; targetSdk 28; versionCode 10; versionName '1.0' }
+ defaultConfig { applicationId 'com.w7custom.launcher'; minSdk 27; targetSdk 28; versionCode 11; versionName '1.1' }
 }
