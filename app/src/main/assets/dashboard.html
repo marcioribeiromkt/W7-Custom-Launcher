@@ -27,7 +27,21 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
 @media(max-width:850px){.brand{min-width:0}.brand h1{font-size:17px}.date{display:none}.chip{padding:7px 9px}.navtitle{font-size:20px}.alt-action{padding:0 8px}.quick{gap:5px;font-size:10px}.footerbtn{padding:0 13px}.topright{gap:6px}.appgrid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-height:510px){.shell{gap:6px;padding-top:4px}.top{height:42px;min-height:42px}.brand .mark{height:37px}.cardhead,.mediatop{height:32px;min-height:32px}.footer{height:43px;min-height:43px}.footerbtn{height:40px}.navbody{padding:7px}.obdfoot{height:32px;min-height:32px}.meter strong{font-size:22px}.mediabar{height:42px;min-height:42px}.utilgrid{padding-bottom:6px}.stack,main{gap:7px}}
 </style>
-</head>
+<style>
+.top{height:42px;min-height:42px}.shell{gap:7px}.stack{gap:7px}
+main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 0 105px}
+.navbody{overflow:hidden}.navbody.mapActive>.road,.navbody.mapActive>.navcaption,.navbody.mapActive>.pin,.navbody.mapActive>.navactions{display:none}
+.navbody.mapActive{background:#102338}
+.footer{height:62px;min-height:62px;gap:7px;justify-content:flex-start;background:linear-gradient(140deg,#13263a,#0c1928);border:1px solid #304e6b;border-radius:13px;padding:5px 7px}
+.bottomstat{height:49px;min-width:91px;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:9px;background:linear-gradient(180deg,#1a334e,#102136);border:1px solid rgba(87,149,195,.23)}
+.bottomstat strong{font-size:23px;line-height:1;font-weight:900;font-variant-numeric:tabular-nums;color:#bdeaff;white-space:nowrap}.bottomstat small{font-size:9px;letter-spacing:.6px;font-weight:800;color:#a0bed3;margin-top:5px}
+.obdConnect{height:49px;min-width:77px;background:#18324a;border:1px solid #355c79;border-radius:9px;color:#b4d2e9;font-size:11px;font-weight:900}
+#obdLight{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e5ad6c;margin-right:3px}
+#obdLight.connected{background:#46e4b5;box-shadow:0 0 9px #43d9a8}
+.bottomSpacer{flex:1}.allApps{height:49px;min-width:220px;white-space:nowrap}
+.footerlabel{display:none}
+@media(max-width:900px){.bottomstat{min-width:77px;padding:3px 5px}.bottomstat strong{font-size:19px}.allApps{min-width:170px;padding:0 9px;font-size:11px}.obdConnect{min-width:62px}}
+</style></head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
  <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/></symbol>
@@ -60,15 +74,15 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
  <main>
   <section class="stack">
    <article class="card nav">
-    <div class="cardhead"><span class="eyebrow"><svg class="ico"><use href="#i-nav"/></svg>NAVEGAÇÃO</span><span class="indicator">GOOGLE MAPS · PADRÃO</span></div>
-    <div class="navbody">
+    <div class="cardhead"><span class="eyebrow"><svg class="ico"><use href="#i-nav"/></svg>NAVEGAÇÃO</span><span class="indicator">MAPA INTEGRADO · OSM</span></div>
+    <div class="navbody" id="mapPanel">
      <div class="road"><svg class="street" viewBox="0 0 490 230" preserveAspectRatio="none"><path d="M-15 120 Q85 75 160 123 T380 115 T520 75" /><path d="M65 -25 Q145 75 90 130 T205 290" /><path d="M235 -20 Q260 80 210 140 T300 260" /><path class="main" d="M-15 120 Q85 75 160 123 T380 115 T520 75" /></svg></div>
-     <div class="navcaption"><div class="navtitle">Seu caminho,<br>sempre à frente.</div><div class="navsub">Navegação pelo aplicativo instalado</div></div>
+     <div class="navcaption"><div class="navtitle">Mapa no painel,<br>sem trocar de tela.</div><div class="navsub">Mapa interativo · rota no Google Maps</div></div>
      <div class="pin"><svg class="ico"><use href="#i-nav"/></svg></div>
-     <div class="navactions"><button class="primary big-action" onclick="W7.openApp(1)"><svg class="ico"><use href="#i-map"/></svg> GOOGLE MAPS</button><button class="secondary alt-action" onclick="W7.openApp(0)"><svg class="ico"><use href="#i-nav"/></svg> WAZE</button></div>
+     <div class="navactions"><button class="primary big-action" onclick="showMap()"><svg class="ico"><use href="#i-map"/></svg> MAPA INTEGRADO</button><button class="secondary alt-action" onclick="W7.openApp(1)"><svg class="ico"><use href="#i-nav"/></svg> GOOGLE MAPS</button></div>
     </div>
    </article>
-   <article class="card obd">
+   <article class="card obd" style="display:none">
     <div class="cardhead"><span class="eyebrow"><svg class="ico"><use href="#i-car"/></svg>TELEMETRIA · OBD2</span><span class="indicator" id="obdBadge">AGUARDANDO</span></div>
     <div class="telegrid">
      <div class="meter"><strong class="accent" id="rpm">—</strong><small>RPM</small></div>
@@ -105,9 +119,14 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
    </article>
   </section>
  </main>
- <footer class="footer">
-  <div class="ftleft"><button class="footerbtn feature" onclick="openApps()"><svg class="ico"><use href="#i-grid"/></svg> TODOS OS APLICATIVOS</button><button class="footerbtn" onclick="W7.openApp(1)"><svg class="ico"><use href="#i-nav"/></svg> MAPAS</button><button class="footerbtn" onclick="W7.androidSettings()"><svg class="ico"><use href="#i-settings"/></svg> SISTEMA</button></div>
-  <div class="ftright"><span class="footerlabel">W7 CUSTOM · 1.0</span></div>
+ <footer class="footer" id="teleFooter">
+  <div class="bottomstat"><strong id="rpmBottom">—</strong><small>RPM</small></div>
+  <div class="bottomstat"><strong id="speedBottom">—</strong><small>KM/H</small></div>
+  <div class="bottomstat"><strong id="tempBottom">—</strong><small>MOTOR °C</small></div>
+  <div class="bottomstat"><strong id="voltBottom">—</strong><small>TENSÃO</small></div>
+  <button class="obdConnect" onclick="W7.chooseObd()" title="Configurar ELM327"><span id="obdLight"></span> OBD2</button>
+  <div class="bottomSpacer"></div>
+  <button class="footerbtn feature allApps" onclick="openApps()"><svg class="ico"><use href="#i-grid"/></svg> TODOS OS APLICATIVOS</button>
  </footer>
 </div>
 <div class="overlay" id="appsOverlay">
@@ -129,10 +148,12 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
 </div>
 <script>
 (function(){
- var mediaIndex=4,mediaMode='youtube',mediaOpened=false;
+ var mediaIndex=4,mediaMode='youtube',mediaOpened=false,mapOpened=false;
  function el(id){return document.getElementById(id)}
  function invoke(method,args){try{if(window.W7&&typeof W7[method]==='function')return W7[method].apply(W7,args||[])}catch(e){}}
  window.w7Native=invoke;
+ window.showMap=function(){mapOpened=true;el('mapPanel').classList.add('mapActive');W7.showMap();setTimeout(updateMapRect,200)};
+ window.closeMap=function(){mapOpened=false;el('mapPanel').classList.remove('mapActive');W7.hideMap()};
  window.closeOverlay=function(){el('appsOverlay').classList.remove('visible');el('settingsOverlay').classList.remove('visible');W7.hideMedia(false);setTimeout(updateMediaRect,120)}
  window.openSettings=function(){closeOverlay();el('settingsOverlay').classList.add('visible');W7.hideMedia(true);}
  window.openApps=function(){
@@ -155,7 +176,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
   document.body.classList.toggle('hybrid',hybrid);
   el('skinButton').innerHTML='<span class="statusdot"></span> '+(hybrid?'HYBRID':'COCKPIT');
   W7.saveSkin(hybrid?'hybrid':'cockpit');
-  setTimeout(updateMediaRect,150);
+  setTimeout(updateMediaRect,150);setTimeout(updateMapRect,150);
  }
  window.selectMedia=function(kind,index,button){
   mediaMode=kind;mediaIndex=index;mediaOpened=true;
@@ -169,6 +190,8 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
  }
  window.resetMedia=function(){mediaOpened=false;el('mediaPlaceholder').style.display='flex';W7.closeMedia();}
  window.openExternalMedia=function(){W7.openApp(mediaIndex);}
+ function updateMapRect(){if(!mapOpened)return;var r=el('mapPanel').getBoundingClientRect();W7.mapRect(r.left+1,r.top+1,r.width-2,r.height-2,window.innerWidth,window.innerHeight);}
+ window.updateMapRect=updateMapRect;
  function updateMediaRect(){
   if(!mediaOpened)return;
   var r=el('mediaScreen').getBoundingClientRect();
@@ -176,14 +199,14 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
  }
  window.updateMediaRect=updateMediaRect;
  window.W7Bridge={
-  onStatus:function(s){el('obdMessage').textContent=s.message||'';el('obdBadge').textContent=s.connected?'ELM327 ONLINE':'DESCONECTADO';el('obdBadge').style.color=s.connected?'#5eebc6':'#b0c5d5';},
-  onData:function(d){el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent=(d.rpm<0&&d.kmh<0&&d.temp<0)?'ECU SEM DADOS':'LEITURA ATIVA';},
-  onResume:function(){updateMediaRect();}
+  onStatus:function(s){el('obdLight').className=s.connected?'connected':'';el('obdConnect').title=s.message||'OBD2';el('obdMessage').textContent=s.message||'';el('obdBadge').textContent=s.connected?'ELM327 ONLINE':'DESCONECTADO';el('obdBadge').style.color=s.connected?'#5eebc6':'#b0c5d5';},
+  onData:function(d){el('rpmBottom').textContent=d.rpm<0?'—':d.rpm;el('speedBottom').textContent=d.kmh<0?'—':d.kmh;el('tempBottom').textContent=d.temp<0?'—':d.temp;el('voltBottom').textContent=d.volt||'—';el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent=(d.rpm<0&&d.kmh<0&&d.temp<0)?'ECU SEM DADOS':'LEITURA ATIVA';},
+  onResume:function(){updateMediaRect();updateMapRect();}
  };
  function clock(){var now=new Date();el('clock').textContent=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);el('today').textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();}
  clock();setInterval(clock,15000);
  try{if(W7.getSkin()==='hybrid'){document.body.classList.add('hybrid');el('skinButton').innerHTML='<span class="statusdot"></span> HYBRID';}}catch(e){}
- window.addEventListener('resize',function(){setTimeout(updateMediaRect,75)});
+ window.addEventListener('resize',function(){setTimeout(updateMediaRect,75);setTimeout(updateMapRect,75)});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Backspace')closeOverlay()});
 })();
 </script>
