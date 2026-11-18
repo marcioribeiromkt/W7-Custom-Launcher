@@ -277,7 +277,7 @@ public class MainActivity extends Activity {
                     obdStatus=text;obdConnected=connected;refreshObd();
                 }
                 @Override public void onData(int rpm,int kmh,int temp,String voltage){
-                    obdConnected=true;obdStatus="Leitura ativa";
+                    obdConnected=true;obdStatus=(rpm<0&&kmh<0&&temp<0)?"ELM327 conectado; ECU sem resposta":"Leitura ativa";
                     refreshObd();sendData(rpm,kmh,temp,voltage);
                 }
             });
@@ -396,7 +396,7 @@ public class MainActivity extends Activity {
         String[] names=new String[available.size()];
         for(int i=0;i<available.size();i++)names[i]=available.get(i).loadLabel(getPackageManager()).toString();
         new AlertDialog.Builder(this).setTitle("Abrir tela inicial original")
-            .setItems(names,(d,i)->startComponent(available.get(i).activityInfo.packageName,available.get(i).activityInfo.name))
+            .setItems(names,(d,i)->{try{Intent home=new Intent(Intent.ACTION_MAIN);home.addCategory(Intent.CATEGORY_HOME);home.setClassName(available.get(i).activityInfo.packageName,available.get(i).activityInfo.name);home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);startActivity(home);}catch(Exception e){toast("Tela inicial original indisponível");}})
             .setNegativeButton("Cancelar",null).show();
     }
     private void toast(String msg){Toast.makeText(this,msg,Toast.LENGTH_LONG).show();}
