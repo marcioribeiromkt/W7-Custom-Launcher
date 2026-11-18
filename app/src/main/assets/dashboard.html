@@ -177,7 +177,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
  window.updateMediaRect=updateMediaRect;
  window.W7Bridge={
   onStatus:function(s){el('obdMessage').textContent=s.message||'';el('obdBadge').textContent=s.connected?'ELM327 ONLINE':'DESCONECTADO';el('obdBadge').style.color=s.connected?'#5eebc6':'#b0c5d5';},
-  onData:function(d){el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent='LEITURA ATIVA';},
+  onData:function(d){el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent=(d.rpm<0&&d.kmh<0&&d.temp<0)?'ECU SEM DADOS':'LEITURA ATIVA';},
   onResume:function(){updateMediaRect();}
  };
  function clock(){var now=new Date();el('clock').textContent=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);el('today').textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();}
