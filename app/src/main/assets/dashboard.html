@@ -26,6 +26,30 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1.06fr 1fr;gap:10px}
 .hybrid main{grid-template-columns:.92fr 1.1fr}.hybrid .nav{flex:.94}.hybrid .obd{flex:1.06}.hybrid .media{flex:1.62}.hybrid .utility{flex:.38}.hybrid .card{border-color:rgba(84,187,224,.32)}.hybrid .primary{background:linear-gradient(135deg,#268fac,#3372bf)}
 @media(max-width:850px){.brand{min-width:0}.brand h1{font-size:17px}.date{display:none}.chip{padding:7px 9px}.navtitle{font-size:20px}.alt-action{padding:0 8px}.quick{gap:5px;font-size:10px}.footerbtn{padding:0 13px}.topright{gap:6px}.appgrid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-height:510px){.shell{gap:6px;padding-top:4px}.top{height:42px;min-height:42px}.brand .mark{height:37px}.cardhead,.mediatop{height:32px;min-height:32px}.footer{height:43px;min-height:43px}.footerbtn{height:40px}.navbody{padding:7px}.obdfoot{height:32px;min-height:32px}.meter strong{font-size:22px}.mediabar{height:42px;min-height:42px}.utilgrid{padding-bottom:6px}.stack,main{gap:7px}}
+
+/* W7 1.1: keep the Winca status bar; eliminate duplicate launcher header.
+   Move real ELM327 data to the bottom bar and dedicate the main view to content. */
+.shell{padding:5px 9px 7px;gap:7px}
+main{grid-template-columns:1.06fr 1fr;gap:8px}
+.stack{gap:8px}
+.nav{flex:1!important}
+.media{flex:1.65!important}
+.utility{flex:.35!important}
+.footer{height:61px;min-height:61px;gap:9px;border:1px solid rgba(86,148,196,.27);background:linear-gradient(110deg,#112339,#0a1627);border-radius:14px;padding:5px 7px}
+.footertele{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;min-width:0;position:relative}
+.ftmetric{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;border-right:1px solid rgba(109,170,210,.22);height:45px}
+.ftmetric:last-of-type{border-right:0}
+.ftmetric strong{font-size:clamp(17px,2.4vw,26px);line-height:1.05;font-weight:900;color:#b4e9ff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ftmetric small{font-size:9px;letter-spacing:.8px;color:#9db8ce;font-weight:800;margin-top:5px}
+.footerstatus{position:absolute;left:1px;top:-3px;font-size:7px;letter-spacing:.4px;color:#6cb4d6;opacity:.85}
+.footeractions{display:flex;gap:6px;align-items:center}
+.footerbtn{height:47px;padding:0 15px}
+.footerbtn.configbtn{width:46px;padding:0;min-width:46px}
+.footerbtn.appsbtn{min-width:153px}
+.obdhidden{display:none}
+.hybrid main{grid-template-columns:.92fr 1.1fr}
+.hybrid .nav{flex:1!important}.hybrid .media{flex:1.65!important}.hybrid .utility{flex:.35!important}
+@media(max-height:510px){.footer{height:54px;min-height:54px}.ftmetric{height:40px}.footerbtn{height:43px}.navtitle{font-size:22px}}
 </style>
 <style>
 .top{height:42px;min-height:42px}.shell{gap:7px}.stack{gap:7px}
@@ -60,17 +84,6 @@ main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 
  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2 6M20 5v6h-6"/></symbol>
 </svg>
 <div class="shell" id="shell">
- <header class="top">
-  <div class="brand">
-   <div class="mark"><img id="cheryLogo" src="https://upload.wikimedia.org/wikipedia/commons/5/51/Chery_symbol.svg" onerror="this.style.display='none';document.getElementById('fallbackLogo').style.display='block'" alt="Símbolo Chery"><span class="fallback" id="fallbackLogo">CHERY</span></div>
-   <div><h1>W7 <span>COCKPIT</span></h1><p>CHERY TIGGO · CUSTOM OS</p></div>
-  </div>
-  <div class="topright">
-   <div class="date" id="today">TERÇA-FEIRA</div><div class="time" id="clock">--:--</div>
-   <button class="chip active" onclick="toggleSkin()" id="skinButton"><span class="statusdot"></span> COCKPIT</button>
-   <button class="chip" onclick="openSettings()" title="Configurações"><svg class="ico"><use href="#i-settings"/></svg></button>
-  </div>
- </header>
  <main>
   <section class="stack">
    <article class="card nav">
@@ -174,7 +187,6 @@ main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 
  window.toggleSkin=function(){
   var hybrid=!document.body.classList.contains('hybrid');
   document.body.classList.toggle('hybrid',hybrid);
-  el('skinButton').innerHTML='<span class="statusdot"></span> '+(hybrid?'HYBRID':'COCKPIT');
   W7.saveSkin(hybrid?'hybrid':'cockpit');
   setTimeout(updateMediaRect,150);setTimeout(updateMapRect,150);
  }
@@ -203,9 +215,8 @@ main{grid-template-columns:1.06fr 1fr}.nav{flex:1}.media{flex:1}.utility{flex:0 
   onData:function(d){el('rpmBottom').textContent=d.rpm<0?'—':d.rpm;el('speedBottom').textContent=d.kmh<0?'—':d.kmh;el('tempBottom').textContent=d.temp<0?'—':d.temp;el('voltBottom').textContent=d.volt||'—';el('rpm').textContent=d.rpm<0?'—':d.rpm;el('speed').textContent=d.kmh<0?'—':d.kmh;el('temp').textContent=d.temp<0?'—':d.temp;el('volt').textContent=d.volt||'—';el('obdBadge').textContent=(d.rpm<0&&d.kmh<0&&d.temp<0)?'ECU SEM DADOS':'LEITURA ATIVA';},
   onResume:function(){updateMediaRect();updateMapRect();}
  };
- function clock(){var now=new Date();el('clock').textContent=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);el('today').textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();}
- clock();setInterval(clock,15000);
- try{if(W7.getSkin()==='hybrid'){document.body.classList.add('hybrid');el('skinButton').innerHTML='<span class="statusdot"></span> HYBRID';}}catch(e){}
+
+ try{if(W7.getSkin()==='hybrid'){document.body.classList.add('hybrid');}}catch(e){}
  window.addEventListener('resize',function(){setTimeout(updateMediaRect,75);setTimeout(updateMapRect,75)});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Backspace')closeOverlay()});
 })();
